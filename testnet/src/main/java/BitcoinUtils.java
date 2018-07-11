@@ -11,7 +11,7 @@ public class BitcoinUtils {
 
     public static BitcoindRpcClient getBitcoindRpcClientInstance() {
         if (client == null) {
-            String server = "http://192.168.1.115:18332";
+            String server = "192.168.1.115:18332";
             String username = "ndhy";
             String password = "12345";
             try {
