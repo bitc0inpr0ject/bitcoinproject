@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="bitcoinj-proxy-0.2.6">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/bitcoinj/bitcoinj-proxy-0.2.6.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
