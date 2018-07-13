@@ -1,5 +1,6 @@
 import com.msgilligan.bitcoinj.rpc.BitcoinClient;
 import org.bitcoinj.core.NetworkParameters;
+import org.bitcoinj.core.Sha256Hash;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.params.MainNetParams;
 import org.bitcoinj.params.TestNet2Params;
@@ -57,6 +58,25 @@ public class BitcoinUtils {
                 throw e;
             } finally {
                 future.cancel(true);
+            }
+        }
+    }
+
+    public static Transaction getTransaction(Sha256Hash hash) throws ExecutionException {
+        while (true) {
+            ExecutorService executor = Executors.newCachedThreadPool();
+            Callable<Transaction> task = () -> getBitcoinClientInstance().getRawTransaction(hash);
+            Future<Transaction> future = executor.submit(task);
+            try {
+                return future.get(5, TimeUnit.SECONDS);
+            } catch (TimeoutException | InterruptedException ex) {
+                System.out.println("can not get transaction detail, retrying...");
+                ex.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+                throw e;
+            } finally {
+                future.cancel(true); // may or may not desire this
             }
         }
     }
