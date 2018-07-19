@@ -100,4 +100,52 @@ public class BitcoinUtils {
         }
     }
 
+    public static Transaction completeTx(NetworkParameters params, Map<TransactionOutput, ECKey> originalInputs, List<Pair<Address, Coin>> candidates, Address changeAddress, Coin feePerKb) throws Exception {
+        Transaction rawTx = new Transaction(params);
+        int size = rawTx.getMessageSize();
+
+        size += VarInt.sizeOf(candidates.size());
+        for (Pair<Address, Coin> candidate:
+             candidates) {
+            TransactionOutput txout = rawTx.addOutput(candidate.getValue(), candidate.getKey());
+            size += txout.getMessageSize();
+        }
+
+        size += VarInt.sizeOf(originalInputs.size());
+        for (TransactionOutput originalInput:
+             originalInputs.keySet()) {
+            TransactionInput txinp = rawTx.addInput(originalInput);
+            size += txinp.getMessageSize();
+        }
+        for (int i = 0; i < rawTx.getInputs().size(); i++) {
+            TransactionInput txinp = rawTx.getInput(i);
+            TransactionOutput txconnectedOutput = txinp.getConnectedOutput();
+            Script scriptSig = ScriptBuilder.createInputScript(rawTx.calculateSignature(i, originalInputs.get(txconnectedOutput), txconnectedOutput.getScriptPubKey(), Transaction.SigHash.ALL, false), originalInputs.get(txconnectedOutput));
+            size += scriptSig.getProgram().length;
+        }
+
+        if (rawTx.getInputSum().isLessThan(rawTx.getOutputSum().add(feePerKb.multiply(size).divide(1000L))))
+            throw new Exception("Not enough input amount ...");
+
+        TransactionOutput changeOutput = new TransactionOutput(rawTx.getParams(), rawTx, Coin.ZERO, changeAddress);
+        int changeSize = changeOutput.getMessageSize() + VarInt.sizeOf(candidates.size()+1) - VarInt.sizeOf(candidates.size());
+
+        if (rawTx.getInputSum().isGreaterThan(rawTx.getOutputSum()
+                .add(feePerKb.multiply(size).divide(1000L))
+                .add(changeOutput.getMinNonDustValue(feePerKb)))) {
+            size += changeSize;
+            changeOutput.setValue(rawTx.getInputSum().subtract(rawTx.getOutputSum()).subtract(feePerKb.multiply(size).divide(1000L)));
+            rawTx.addOutput(changeOutput);
+        }
+
+        for (int i = 0; i < rawTx.getInputs().size(); i++) {
+            TransactionInput txinp = rawTx.getInput(i);
+            TransactionOutput txconnectedOutput = txinp.getConnectedOutput();
+            Script scriptSig = ScriptBuilder.createInputScript(rawTx.calculateSignature(i, originalInputs.get(txconnectedOutput), txconnectedOutput.getScriptPubKey(), Transaction.SigHash.ALL, false), originalInputs.get(txconnectedOutput));
+            txinp.setScriptSig(scriptSig);
+        }
+
+        return rawTx;
+    }
+    
 }
