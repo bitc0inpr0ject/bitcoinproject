@@ -119,8 +119,8 @@ public class BitcoinUtils {
         }
         for (int i = 0; i < rawTx.getInputs().size(); i++) {
             TransactionInput txinp = rawTx.getInput(i);
-            TransactionOutput txconnectedOutput = txinp.getConnectedOutput();
-            Script scriptSig = ScriptBuilder.createInputScript(rawTx.calculateSignature(i, originalInputs.get(txconnectedOutput), txconnectedOutput.getScriptPubKey(), Transaction.SigHash.ALL, false), originalInputs.get(txconnectedOutput));
+            Pair<Transaction,Integer> inp = new Pair<>(txinp.getConnectedOutput().getParentTransaction(), txinp.getConnectedOutput().getIndex());
+            Script scriptSig = ScriptBuilder.createInputScript(rawTx.calculateSignature(i, originalInputs.get(inp), txinp.getConnectedOutput().getScriptPubKey(), Transaction.SigHash.ALL, false), originalInputs.get(inp));
             size += scriptSig.getProgram().length;
         }
 
@@ -140,8 +140,8 @@ public class BitcoinUtils {
 
         for (int i = 0; i < rawTx.getInputs().size(); i++) {
             TransactionInput txinp = rawTx.getInput(i);
-            TransactionOutput txconnectedOutput = txinp.getConnectedOutput();
-            Script scriptSig = ScriptBuilder.createInputScript(rawTx.calculateSignature(i, originalInputs.get(txconnectedOutput), txconnectedOutput.getScriptPubKey(), Transaction.SigHash.ALL, false), originalInputs.get(txconnectedOutput));
+            Pair<Transaction,Integer> inp = new Pair<>(txinp.getConnectedOutput().getParentTransaction(), txinp.getConnectedOutput().getIndex());
+            Script scriptSig = ScriptBuilder.createInputScript(rawTx.calculateSignature(i, originalInputs.get(inp), txinp.getConnectedOutput().getScriptPubKey(), Transaction.SigHash.ALL, false), originalInputs.get(inp));
             txinp.setScriptSig(scriptSig);
         }
 
