@@ -102,27 +102,25 @@ public class BitcoinUtils {
 
     public static Transaction completeTx(NetworkParameters params, Map<Pair<Transaction,Integer>, ECKey> originalInputs, List<Pair<Address, Coin>> candidates, Address changeAddress, Coin feePerKb) throws Exception {
         Transaction rawTx = new Transaction(params);
-        int size = rawTx.getMessageSize();
 
-        size += VarInt.sizeOf(candidates.size());
         for (Pair<Address, Coin> candidate:
              candidates) {
-            TransactionOutput txout = rawTx.addOutput(candidate.getValue(), candidate.getKey());
-            size += txout.getMessageSize();
+            rawTx.addOutput(candidate.getValue(), candidate.getKey());
         }
 
-        size += VarInt.sizeOf(originalInputs.size());
         for (Pair<Transaction,Integer> originalInput:
              originalInputs.keySet()) {
-            TransactionInput txinp = rawTx.addInput(new TransactionOutPoint(params, originalInput.getValue(), originalInput.getKey()).getConnectedOutput());
-            size += txinp.getMessageSize();
+            rawTx.addInput(new TransactionOutPoint(params, originalInput.getValue(), originalInput.getKey()).getConnectedOutput());
         }
         for (int i = 0; i < rawTx.getInputs().size(); i++) {
             TransactionInput txinp = rawTx.getInput(i);
             Pair<Transaction,Integer> inp = new Pair<>(txinp.getConnectedOutput().getParentTransaction(), txinp.getConnectedOutput().getIndex());
             Script scriptSig = ScriptBuilder.createInputScript(rawTx.calculateSignature(i, originalInputs.get(inp), txinp.getConnectedOutput().getScriptPubKey(), Transaction.SigHash.ALL, false), originalInputs.get(inp));
-            size += scriptSig.getProgram().length;
+            txinp.setScriptSig(scriptSig);
+            System.out.println(txinp.getScriptSig());
         }
+
+        int size = rawTx.getMessageSize();
 
         if (rawTx.getInputSum().isLessThan(rawTx.getOutputSum().add(feePerKb.multiply(size).divide(1000L))))
             throw new Exception("Not enough input amount ...");
@@ -143,6 +141,7 @@ public class BitcoinUtils {
             Pair<Transaction,Integer> inp = new Pair<>(txinp.getConnectedOutput().getParentTransaction(), txinp.getConnectedOutput().getIndex());
             Script scriptSig = ScriptBuilder.createInputScript(rawTx.calculateSignature(i, originalInputs.get(inp), txinp.getConnectedOutput().getScriptPubKey(), Transaction.SigHash.ALL, false), originalInputs.get(inp));
             txinp.setScriptSig(scriptSig);
+            System.out.println(txinp.getScriptSig());
         }
 
         return rawTx;
