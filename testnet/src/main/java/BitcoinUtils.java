@@ -100,7 +100,7 @@ public class BitcoinUtils {
         }
     }
 
-    public static Transaction completeTx(NetworkParameters params, Map<TransactionOutput, ECKey> originalInputs, List<Pair<Address, Coin>> candidates, Address changeAddress, Coin feePerKb) throws Exception {
+    public static Transaction completeTx(NetworkParameters params, Map<TransactionOutPoint, ECKey> originalInputs, List<Pair<Address, Coin>> candidates, Address changeAddress, Coin feePerKb) throws Exception {
         Transaction rawTx = new Transaction(params);
         int size = rawTx.getMessageSize();
 
@@ -112,9 +112,9 @@ public class BitcoinUtils {
         }
 
         size += VarInt.sizeOf(originalInputs.size());
-        for (TransactionOutput originalInput:
+        for (TransactionOutPoint originalInput:
              originalInputs.keySet()) {
-            TransactionInput txinp = rawTx.addInput(originalInput);
+            TransactionInput txinp = rawTx.addInput(originalInput.getConnectedOutput());
             size += txinp.getMessageSize();
         }
         for (int i = 0; i < rawTx.getInputs().size(); i++) {
