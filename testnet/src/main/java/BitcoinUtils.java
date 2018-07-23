@@ -117,7 +117,6 @@ public class BitcoinUtils {
             Pair<Transaction,Integer> inp = new Pair<>(txinp.getConnectedOutput().getParentTransaction(), txinp.getConnectedOutput().getIndex());
             Script scriptSig = ScriptBuilder.createInputScript(rawTx.calculateSignature(i, originalInputs.get(inp), txinp.getConnectedOutput().getScriptPubKey(), Transaction.SigHash.ALL, false), originalInputs.get(inp));
             txinp.setScriptSig(scriptSig);
-            System.out.println(txinp.getScriptSig());
         }
 
         int size = rawTx.getMessageSize();
@@ -141,7 +140,6 @@ public class BitcoinUtils {
             Pair<Transaction,Integer> inp = new Pair<>(txinp.getConnectedOutput().getParentTransaction(), txinp.getConnectedOutput().getIndex());
             Script scriptSig = ScriptBuilder.createInputScript(rawTx.calculateSignature(i, originalInputs.get(inp), txinp.getConnectedOutput().getScriptPubKey(), Transaction.SigHash.ALL, false), originalInputs.get(inp));
             txinp.setScriptSig(scriptSig);
-            System.out.println(txinp.getScriptSig());
         }
 
         return rawTx;
