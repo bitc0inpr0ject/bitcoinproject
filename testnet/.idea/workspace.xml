@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="BookmarkManager">
-    <bookmark url="file://$PROJECT_DIR$/src/main/java/ConnectServer.java" line="22" />
+    <bookmark url="file://$PROJECT_DIR$/src/main/java/ConnectServer.java" line="42" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2e5ff851-81ac-485c-bc27-f4ec25aca8ec" name="Default" comment="" />
@@ -22,17 +22,17 @@
       <file leaf-file-name="pom.xml" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/pom.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="491">
+            <state relative-caret-position="1320">
               <caret line="88" column="17" selection-start-line="88" selection-start-column="17" selection-end-line="88" selection-end-column="17" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ConnectServer.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="ConnectServer.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/ConnectServer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="442">
-              <caret line="39" selection-start-line="39" selection-end-line="39" />
+            <state relative-caret-position="110">
+              <caret line="23" selection-start-line="23" selection-end-line="23" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -40,14 +40,45 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="BitcoinUtils.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="TransactionOutput.class" pinned="false" current-in-tab="false">
+        <entry file="jar://$MAVEN_REPOSITORY$/org/bitcoinj/bitcoinj-core/0.14.5/bitcoinj-core-0.14.5.jar!/org/bitcoinj/core/TransactionOutput.class">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="370">
+              <caret line="219" selection-start-line="219" selection-end-line="219" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="BitcoinUtils.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/BitcoinUtils.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="270">
-              <caret line="30" column="63" selection-start-line="30" selection-start-column="55" selection-end-line="30" selection-end-column="63" />
+            <state relative-caret-position="75">
+              <caret line="138" column="65" selection-start-line="138" selection-start-column="65" selection-end-line="138" selection-end-column="65" />
               <folding>
                 <element signature="imports" expanded="true" />
+                <element signature="method#createBitcoinClientInstance#0;class#BitcoinUtils#0" />
+                <element signature="method#getTransactionInBlock#0;class#BitcoinUtils#0" />
+                <element signature="method#getTransaction#0;class#BitcoinUtils#0" />
+                <element signature="method#getBlockCount#0;class#BitcoinUtils#0" />
+                <element signature="method#getTransactionInputInBlock#0;class#BitcoinUtils#0" />
+                <element signature="method#getTransactionOutputInBlock#0;class#BitcoinUtils#0" />
+                <element signature="method#checkTxOutputInTxInputs#0;class#BitcoinUtils#0" />
+                <element signature="method#getTransactionOutputByAddress#0;class#BitcoinUtils#0" />
+                <element signature="method#getAmt#0;class#BitcoinUtils#0" />
+                <element signature="method#signTx#0;class#BitcoinUtils#0" />
+                <element signature="method#canAddChangeOutput#0;class#BitcoinUtils#0" />
+                <element signature="method#sendTx#0;class#BitcoinUtils#0" />
+                <element signature="method#sendToAddressesByPrivKey#0;class#BitcoinUtils#0" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Transaction.class" pinned="false" current-in-tab="false">
+        <entry file="jar://$MAVEN_REPOSITORY$/org/bitcoinj/bitcoinj-core/0.14.5/bitcoinj-core-0.14.5.jar!/org/bitcoinj/core/Transaction.class">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="167">
+              <caret line="619" column="29" selection-start-line="619" selection-start-column="29" selection-end-line="619" selection-end-column="29" />
             </state>
           </provider>
         </entry>
@@ -61,11 +92,28 @@
       </list>
     </option>
   </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>List</find>
+      <find>H</find>
+      <find>time</find>
+      <find>==</find>
+      <find>InsufficientMoneyException</find>
+      <find>Pair&lt;Transaction,Integer&gt;</find>
+      <find>connectedOutput</find>
+      <find>originalInputs</find>
+      <find>Coin</find>
+      <find>rawTx</find>
+      <find>getInputSum</find>
+      <find>tmpTx</find>
+    </findStrings>
+  </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/main/java/ConnectServer.java" />
         <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/src/main/java/ConnectServer.java" />
+        <option value="$PROJECT_DIR$/src/main/java/BitcoinUtils.java" />
       </list>
     </option>
   </component>
@@ -97,11 +145,6 @@
             <path>
               <item name="testnet" type="b2602c69:ProjectViewProjectNode" />
               <item name="testnet" type="462c0819:PsiDirectoryNode" />
-              <item name="bitcoinj" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="testnet" type="b2602c69:ProjectViewProjectNode" />
-              <item name="testnet" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -117,21 +160,17 @@
               <item name="main" type="462c0819:PsiDirectoryNode" />
               <item name="java" type="462c0819:PsiDirectoryNode" />
             </path>
-            <path>
-              <item name="testnet" type="b2602c69:ProjectViewProjectNode" />
-              <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
-            </path>
           </expand>
           <select />
         </subPane>
       </pane>
+      <pane id="PackagesPane" />
       <pane id="Scope" />
       <pane id="AndroidView" />
-      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/bitcoinj/bitcoinj-server-0.2.6.jar!/" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="project.structure.last.edited" value="Libraries" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
@@ -220,43 +259,153 @@
     <layout>
       <window_info anchor="right" id="Palette" order="8" />
       <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Messages" order="9" weight="0.3270869" />
       <window_info anchor="right" id="Palette&#9;" order="5" />
       <window_info id="Image Layers" order="7" />
       <window_info anchor="right" id="Capture Analysis" order="4" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
       <window_info anchor="right" id="Maven Projects" order="7" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.3421462" />
       <window_info anchor="bottom" id="Version Control" order="8" show_stripe_button="false" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.3407155" />
       <window_info anchor="bottom" id="Terminal" order="7" weight="0.32869565" />
       <window_info anchor="right" id="JSON Viewer" order="0" />
       <window_info id="Capture Tool" order="6" />
       <window_info id="Designer" order="4" />
-      <window_info active="true" content_ui="combo" id="Project" order="1" sideWeight="0.4973545" visible="true" weight="0.2732968" />
+      <window_info content_ui="combo" id="Project" order="1" sideWeight="0.4973545" weight="0.2779953" />
       <window_info id="Learn" order="0" />
       <window_info id="Structure" order="2" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Ant Build" order="2" weight="0.25" />
       <window_info id="UI Designer" order="5" />
       <window_info anchor="right" id="Theme Preview" order="6" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.39966556" />
       <window_info id="Favorites" order="3" sideWeight="0.5026455" side_tool="true" weight="0.2586904" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.39863715" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="3" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="1" type="SLIDING" weight="0.4" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Messages" order="9" weight="0.3281493" />
     </layout>
+    <layout-to-restore>
+      <window_info anchor="right" id="Palette" order="8" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="3" weight="0.25" />
+      <window_info anchor="right" id="Capture Analysis" order="4" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.3407155" />
+      <window_info anchor="right" id="Theme Preview" order="6" />
+      <window_info anchor="right" id="JSON Viewer" order="0" />
+      <window_info id="Structure" order="2" side_tool="true" weight="0.25" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="1" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="2" weight="0.25" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Version Control" order="8" show_stripe_button="false" />
+      <window_info id="Image Layers" order="7" />
+      <window_info id="Designer" order="4" />
+      <window_info id="UI Designer" order="5" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info id="Learn" order="0" />
+      <window_info content_ui="combo" id="Project" order="1" sideWeight="0.4973545" visible="true" weight="0.2779953" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.39863715" />
+      <window_info anchor="right" id="Palette&#9;" order="5" />
+      <window_info anchor="bottom" id="Terminal" order="7" weight="0.32869565" />
+      <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info id="Capture Tool" order="6" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Messages" order="9" weight="0.3270869" />
+      <window_info anchor="right" id="Maven Projects" order="7" />
+      <window_info id="Favorites" order="3" sideWeight="0.5026455" side_tool="true" weight="0.2586904" />
+    </layout-to-restore>
   </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="2" />
+      <option name="time" value="17" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1320">
+          <caret line="88" column="17" selection-start-line="88" selection-start-column="17" selection-end-line="88" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ConnectServer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="510">
+          <caret line="34" selection-start-line="34" selection-end-line="34" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/BitcoinUtils.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2790">
+          <caret line="186" column="29" selection-start-line="186" selection-start-column="29" selection-end-line="186" selection-end-column="29" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="method#createBitcoinClientInstance#0;class#BitcoinUtils#0" />
+            <element signature="method#getTransactionInBlock#0;class#BitcoinUtils#0" />
+            <element signature="method#getTransaction#0;class#BitcoinUtils#0" />
+            <element signature="method#getBlockCount#0;class#BitcoinUtils#0" />
+            <element signature="method#getTransactionInputInBlock#0;class#BitcoinUtils#0" />
+            <element signature="method#getTransactionOutputInBlock#0;class#BitcoinUtils#0" />
+            <element signature="method#checkTxOutputInTxInputs#0;class#BitcoinUtils#0" />
+            <element signature="method#getTransactionOutputByAddress#0;class#BitcoinUtils#0" />
+            <element signature="method#getAmt#0;class#BitcoinUtils#0" />
+            <element signature="method#signTx#0;class#BitcoinUtils#0" />
+            <element signature="method#canAddChangeOutput#0;class#BitcoinUtils#0" />
+            <element signature="method#sendTx#0;class#BitcoinUtils#0" />
+            <element signature="method#sendToAddressesByPrivKey#0;class#BitcoinUtils#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1320">
+          <caret line="88" column="17" selection-start-line="88" selection-start-column="17" selection-end-line="88" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ConnectServer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="315">
+          <caret line="23" selection-start-line="23" selection-end-line="23" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/BitcoinUtils.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="315">
+          <caret line="30" column="42" lean-forward="true" selection-start-line="30" selection-start-column="42" selection-end-line="30" selection-end-column="42" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="method#createBitcoinClientInstance#0;class#BitcoinUtils#0" />
+            <element signature="method#getTransactionInBlock#0;class#BitcoinUtils#0" />
+            <element signature="method#getTransaction#0;class#BitcoinUtils#0" />
+            <element signature="method#getBlockCount#0;class#BitcoinUtils#0" />
+            <element signature="method#getTransactionInputInBlock#0;class#BitcoinUtils#0" />
+            <element signature="method#getTransactionOutputInBlock#0;class#BitcoinUtils#0" />
+            <element signature="method#checkTxOutputInTxInputs#0;class#BitcoinUtils#0" />
+            <element signature="method#getTransactionOutputByAddress#0;class#BitcoinUtils#0" />
+            <element signature="method#getAmt#0;class#BitcoinUtils#0" />
+            <element signature="method#signTx#0;class#BitcoinUtils#0" />
+            <element signature="method#canAddChangeOutput#0;class#BitcoinUtils#0" />
+            <element signature="method#sendTx#0;class#BitcoinUtils#0" />
+            <element signature="method#sendToAddressesByPrivKey#0;class#BitcoinUtils#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="915">
@@ -282,9 +431,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="60">
           <caret line="7" column="30" selection-start-line="7" selection-start-column="7" selection-end-line="7" selection-end-column="30" />
-          <folding>
-            <element signature="e#0#18097#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -416,9 +562,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-1155">
           <caret line="7" column="30" selection-start-line="7" selection-start-column="7" selection-end-line="7" selection-end-column="30" />
-          <folding>
-            <element signature="e#0#18097#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -436,27 +579,149 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ConnectServer.java">
+    <entry file="file://$PROJECT_DIR$/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="442">
-          <caret line="39" selection-start-line="39" selection-end-line="39" />
+        <state relative-caret-position="1320">
+          <caret line="88" column="17" selection-start-line="88" selection-start-column="17" selection-end-line="88" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/com/msgilligan/bitcoinj-rpcclient/bitcoinj-rpcclient/0.2.6/bitcoinj-rpcclient-0.2.6.jar!/com/msgilligan/jsonrpc/AbstractRPCClient.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="91">
+          <caret line="55" column="58" selection-start-line="55" selection-start-column="54" selection-end-line="55" selection-end-column="58" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/com/msgilligan/bitcoinj-rpcclient/bitcoinj-rpcclient/0.2.6/bitcoinj-rpcclient-0.2.6.jar!/com/msgilligan/bitcoinj/rpc/BitcoinClient.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="195">
+          <caret line="188" column="27" selection-start-line="188" selection-start-column="27" selection-end-line="188" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/bitcoinj/bitcoinj-core/0.14.5/bitcoinj-core-0.14.5.jar!/org/bitcoinj/core/Block.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="91">
+          <caret line="63" column="17" selection-start-line="63" selection-start-column="13" selection-end-line="63" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/bitcoinj/bitcoinj-core/0.14.5/bitcoinj-core-0.14.5.jar!/org/bitcoinj/core/InsufficientMoneyException.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="14" column="14" selection-start-line="14" selection-start-column="14" selection-end-line="14" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/bitcoinj/bitcoinj-core/0.14.5/bitcoinj-core-0.14.5.jar!/org/bitcoinj/core/TransactionOutPoint.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="91">
+          <caret line="43" column="11" selection-start-line="43" selection-start-column="11" selection-end-line="43" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/bitcoinj/bitcoinj-core/0.14.5/bitcoinj-core-0.14.5.jar!/org/bitcoinj/wallet/Wallet.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-283">
+          <caret line="4039" column="33" selection-start-line="4039" selection-start-column="33" selection-end-line="4039" selection-end-column="33" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/bitcoinj/bitcoinj-core/0.14.5/bitcoinj-core-0.14.5.jar!/org/bitcoinj/core/ECKey.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="185">
+          <caret line="849" column="40" selection-start-line="849" selection-start-column="40" selection-end-line="849" selection-end-column="40" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/bitcoinj/bitcoinj-core/0.14.5/bitcoinj-core-0.14.5.jar!/org/bitcoinj/crypto/TransactionSignature.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="215">
+          <caret line="100" column="48" selection-start-line="100" selection-start-column="48" selection-end-line="100" selection-end-column="48" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/bitcoinj/bitcoinj-core/0.14.5/bitcoinj-core-0.14.5.jar!/org/bitcoinj/script/ScriptBuilder.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="215">
+          <caret line="146" column="59" selection-start-line="146" selection-start-column="59" selection-end-line="146" selection-end-column="59" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/bitcoinj/bitcoinj-core/0.14.5/bitcoinj-core-0.14.5.jar!/org/bitcoinj/core/TransactionInput.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="205">
+          <caret line="256" column="29" selection-start-line="256" selection-start-column="29" selection-end-line="256" selection-end-column="29" />
           <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="e#10013#10014#0" expanded="true" />
+            <element signature="e#10075#10076#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pom.xml">
+    <entry file="jar://$MAVEN_REPOSITORY$/org/bitcoinj/bitcoinj-core/0.14.5/bitcoinj-core-0.14.5.jar!/org/bitcoinj/core/ChildMessage.class">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="491">
-          <caret line="88" column="17" selection-start-line="88" selection-start-column="17" selection-end-line="88" selection-end-column="17" />
+        <state relative-caret-position="185">
+          <caret line="31" column="11" selection-start-line="31" selection-start-column="11" selection-end-line="31" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/bitcoinj/bitcoinj-core/0.14.5/bitcoinj-core-0.14.5.jar!/org/bitcoinj/core/Message.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1265">
+          <caret line="119" column="18" selection-start-line="119" selection-start-column="18" selection-end-line="119" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/bitcoinj/bitcoinj-core/0.14.5/bitcoinj-core-0.14.5.jar!/org/bitcoinj/core/Coin.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-90">
+          <caret line="14" column="19" selection-start-line="14" selection-start-column="19" selection-end-line="14" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/bitcoinj/bitcoinj-core/0.14.5/bitcoinj-core-0.14.5.jar!/org/bitcoinj/core/Transaction.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="167">
+          <caret line="619" column="29" selection-start-line="619" selection-start-column="29" selection-end-line="619" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/bitcoinj/bitcoinj-core/0.14.5/bitcoinj-core-0.14.5.jar!/org/bitcoinj/core/TransactionOutput.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="370">
+          <caret line="219" selection-start-line="219" selection-end-line="219" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/BitcoinUtils.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="30" column="63" selection-start-line="30" selection-start-column="55" selection-end-line="30" selection-end-column="63" />
+        <state relative-caret-position="75">
+          <caret line="138" column="65" selection-start-line="138" selection-start-column="65" selection-end-line="138" selection-end-column="65" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="method#createBitcoinClientInstance#0;class#BitcoinUtils#0" />
+            <element signature="method#getTransactionInBlock#0;class#BitcoinUtils#0" />
+            <element signature="method#getTransaction#0;class#BitcoinUtils#0" />
+            <element signature="method#getBlockCount#0;class#BitcoinUtils#0" />
+            <element signature="method#getTransactionInputInBlock#0;class#BitcoinUtils#0" />
+            <element signature="method#getTransactionOutputInBlock#0;class#BitcoinUtils#0" />
+            <element signature="method#checkTxOutputInTxInputs#0;class#BitcoinUtils#0" />
+            <element signature="method#getTransactionOutputByAddress#0;class#BitcoinUtils#0" />
+            <element signature="method#getAmt#0;class#BitcoinUtils#0" />
+            <element signature="method#signTx#0;class#BitcoinUtils#0" />
+            <element signature="method#canAddChangeOutput#0;class#BitcoinUtils#0" />
+            <element signature="method#sendTx#0;class#BitcoinUtils#0" />
+            <element signature="method#sendToAddressesByPrivKey#0;class#BitcoinUtils#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ConnectServer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="110">
+          <caret line="23" selection-start-line="23" selection-end-line="23" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
