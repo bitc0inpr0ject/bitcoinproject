@@ -1,8 +1,11 @@
 package BitcoinModel;
 
+import BitcoinService.BitcoinUtils;
 import com.msgilligan.bitcoinj.rpc.BitcoinClient;
+import javafx.util.Pair;
 import org.bitcoinj.core.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -75,6 +78,16 @@ public class BitcoinAddress {
                 this.txOutputs) {
             this.balance += bTxOutput.getValue();
         }
+    }
+
+    public Transaction sendToAddresses(List<Pair<Address,Coin>> candidates, Coin feePerKb) throws InsufficientMoneyException, IOException {
+        BitcoinClient bClient = BitcoinUtils.getBitcoinClientInstance();
+        NetworkParameters params = bClient.getNetParams();
+        return BitcoinUtils.sendToAddressesByPrivKey(
+                BitcoinTransactionOutput.getTransactionOutputList(
+                        bClient,getTxOutputs()),
+                DumpedPrivateKey.fromBase58(params,this.privKey).getKey(),
+                candidates, feePerKb);
     }
 
 }

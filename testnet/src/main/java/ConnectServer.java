@@ -3,6 +3,7 @@ import BitcoinModel.BitcoinTransactionOutput;
 import BitcoinService.BitcoinAddressService;
 import BitcoinService.BitcoinUtils;
 import BitcoinService.MongoDbService;
+import javafx.util.Pair;
 import org.bitcoinj.core.*;
 import org.bitcoinj.params.TestNet2Params;
 import org.bitcoinj.script.Script;
