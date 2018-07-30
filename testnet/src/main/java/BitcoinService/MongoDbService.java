@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.MongoDbFactory;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoDbFactory;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 public class MongoDbService {
     private static MongoTemplate mongoDb = null;
@@ -18,7 +18,7 @@ public class MongoDbService {
                 MongoCredential credential = MongoCredential.createCredential(username, dbname, password.toCharArray());
                 ServerAddress serverAddress = new ServerAddress(host, port);
 
-                MongoClient mongoClient = new MongoClient(serverAddress,Arrays.asList(credential));
+                MongoClient mongoClient = new MongoClient(serverAddress, Collections.singletonList(credential));
 
                 MongoDbFactory factory = new SimpleMongoDbFactory(mongoClient, dbname);
                 mongoDb = new MongoTemplate(factory);

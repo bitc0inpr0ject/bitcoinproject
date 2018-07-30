@@ -1,68 +1,76 @@
 package BitcoinModel;
 
+import com.msgilligan.bitcoinj.rpc.BitcoinClient;
 import org.bitcoinj.core.NetworkParameters;
-import org.bitcoinj.core.Transaction;
+import org.bitcoinj.core.Sha256Hash;
 import org.bitcoinj.core.TransactionOutput;
 
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 
 public class BitcoinTransactionOutput {
-    private String transaction = "";
-    private long index = 0;
+    private String address = "";
+    private String txHash = "";
+    private long index = -1;
+    private long value = -1;
 
-    public String getTransaction() {
-        return transaction;
+    private BitcoinTransactionOutput() { }
+
+    public static BitcoinTransactionOutput createBitcoinTransactionOutput(BitcoinClient client, String txHash, long index) {
+        NetworkParameters params;
+        TransactionOutput txOutput;
+        try {
+            params = client.getNetParams();
+            txOutput = client.getRawTransaction(Sha256Hash.wrap(txHash)).getOutput(index);
+        } catch (Exception ignore) {
+            return null;
+        }
+        BitcoinTransactionOutput bTxOutput = new BitcoinTransactionOutput();
+        bTxOutput.address = txOutput.getAddressFromP2PKHScript(params).toString();
+        bTxOutput.txHash = txOutput.getParentTransaction().getHashAsString();
+        bTxOutput.index = txOutput.getIndex();
+        bTxOutput.value = txOutput.getValue().value;
+        return bTxOutput;
     }
-    public BitcoinTransactionOutput setTransaction(String transaction) {
-        this.transaction = transaction;
-        return this;
+
+    public String getAddress() {
+        return address;
+    }
+    public String getTxHash() {
+        return txHash;
     }
     public long getIndex() {
         return index;
     }
-    public BitcoinTransactionOutput setIndex(long index) {
-        this.index = index;
-        return this;
+    public long getValue() {
+        return value;
     }
-
-    public TransactionOutput getTransactionOutput(NetworkParameters params) {
-        byte[] bytes = Base64.getDecoder().decode(transaction);
-        Transaction tx = new Transaction(params,bytes);
-        return tx.getOutput(index);
-    }
-    public BitcoinTransactionOutput setTransactionOutput(TransactionOutput txOutput) {
-        this.transaction = Base64.getEncoder().encodeToString(txOutput.getParentTransaction().bitcoinSerialize());
-        this.index = txOutput.getIndex();
-        return this;
-    }
-    public static List<BitcoinTransactionOutput> ListTxOut2ListBTxOut(List<TransactionOutput> txOutputs) {
-        List<BitcoinTransactionOutput> bitcoinTransactionOutputs = new ArrayList<>();
-        for (TransactionOutput txOut :
-                txOutputs) {
-            bitcoinTransactionOutputs.add(new BitcoinTransactionOutput().setTransactionOutput(txOut));
+    public TransactionOutput getTransactionOutput(BitcoinClient client) {
+        try {
+            return client.getRawTransaction(Sha256Hash.wrap(this.txHash)).getOutput(this.index);
+        } catch (Exception ignore) {
+            return null;
         }
-        return bitcoinTransactionOutputs;
     }
-    public static List<TransactionOutput> ListBTxOut2ListTxOut(NetworkParameters params, List<BitcoinTransactionOutput> bTxOutputs) {
-        List<TransactionOutput> transactionOutputs = new ArrayList<>();
-        for (BitcoinTransactionOutput bTxOut :
+    public static List<TransactionOutput> getTransactionOutputList(BitcoinClient client, List<BitcoinTransactionOutput> bTxOutputs) {
+        List<TransactionOutput> txOutputs = new ArrayList<>();
+        for (BitcoinTransactionOutput bTxOutput :
                 bTxOutputs) {
-            transactionOutputs.add(bTxOut.getTransactionOutput(params));
+            TransactionOutput txOutput = bTxOutput.getTransactionOutput(client);
+            if (txOutput == null) continue;
+            txOutputs.add(txOutput);
         }
-        return transactionOutputs;
+        return txOutputs;
     }
 
     @Override
     public boolean equals(Object other) {
         if (other == null) return false;
         if (other == this) return true;
-        if (!(other instanceof BitcoinTransactionOutput))return false;
+        if (!(other instanceof BitcoinTransactionOutput)) return false;
         BitcoinTransactionOutput otherBitcoinTransactionOutput = (BitcoinTransactionOutput)other;
-        if (this.transaction.equals(otherBitcoinTransactionOutput.transaction)
-                && this.index == otherBitcoinTransactionOutput.index)
-            return true;
-        else return false;
+        return this.txHash.equals(otherBitcoinTransactionOutput.txHash)
+                && this.index == otherBitcoinTransactionOutput.index;
     }
+
 }

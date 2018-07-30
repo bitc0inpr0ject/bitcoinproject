@@ -1,10 +1,11 @@
+package BitcoinService;
+
 import com.msgilligan.bitcoinj.rpc.BitcoinClient;
 import javafx.util.Pair;
 import org.bitcoinj.core.*;
 import org.bitcoinj.crypto.TransactionSignature;
 import org.bitcoinj.script.Script;
 import org.bitcoinj.script.ScriptBuilder;
-import org.springframework.data.mongodb.core.aggregation.ArithmeticOperators;
 
 import java.io.IOException;
 import java.net.URI;
@@ -12,7 +13,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.*;
 
 public class BitcoinUtils {
 
@@ -34,62 +34,17 @@ public class BitcoinUtils {
     public static BitcoinClient getBitcoinClientInstance() {
         return bitcoinClient;
     }
-    public static List<Transaction> getTransactionInBlock(int currentBlock) throws ExecutionException {
-        while (true) {
-            ExecutorService executor = Executors.newCachedThreadPool();
-            Callable<List<Transaction>> task = () -> bitcoinClient.getBlock(currentBlock).getTransactions();
-            Future<List<Transaction>> future = executor.submit(task);
-            try {
-                return future.get(5, TimeUnit.SECONDS);
-            } catch (TimeoutException | InterruptedException ex) {
-                System.out.println("cannot list transaction in block, retrying...");
-                ex.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-                throw e;
-            } finally {
-                future.cancel(true);
-            }
-        }
+    public static List<Transaction> getTransactionInBlock(int currentBlock) throws IOException {
+        return bitcoinClient.getBlock(currentBlock).getTransactions();
     }
-    public static Transaction getTransaction(String sha256Hash) throws ExecutionException {
-        while (true) {
-            ExecutorService executor = Executors.newCachedThreadPool();
-            Callable<Transaction> task = () -> getBitcoinClientInstance().getRawTransaction(Sha256Hash.wrap(sha256Hash));
-            Future<Transaction> future = executor.submit(task);
-            try {
-                return future.get(5, TimeUnit.SECONDS);
-            } catch (TimeoutException | InterruptedException ex) {
-                System.out.println("cannot get transaction detail, retrying...");
-                ex.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-                throw e;
-            } finally {
-                future.cancel(true); // may or may not desire this
-            }
-        }
+    public static Transaction getTransaction(String sha256Hash) throws IOException {
+        return getBitcoinClientInstance().getRawTransaction(Sha256Hash.wrap(sha256Hash));
     }
-    public static int getBlockCount() throws ExecutionException {
-        while (true) {
-            ExecutorService executor = Executors.newCachedThreadPool();
-            Callable<Integer> task = () -> bitcoinClient.getBlockCount();
-            Future<Integer> future = executor.submit(task);
-            try {
-                return future.get(5, TimeUnit.SECONDS);
-            } catch (TimeoutException | InterruptedException ex) {
-                System.out.println("cannot get block count detail, retrying...");
-                ex.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-                throw e;
-            } finally {
-                future.cancel(true);
-            }
-        }
+    public static int getBlockCount() throws IOException {
+        return bitcoinClient.getBlockCount();
     }
 
-    public static List<TransactionInput> getTransactionInputInBlock(int currentBlock) throws ExecutionException {
+    public static List<TransactionInput> getTransactionInputInBlock(int currentBlock) throws IOException {
         List<TransactionInput> transactionInputs = new ArrayList<>();
         List<Transaction> transactions = getTransactionInBlock(currentBlock);
         for (Transaction tx :
@@ -98,7 +53,7 @@ public class BitcoinUtils {
         }
         return transactionInputs;
     }
-    public static List<TransactionOutput> getTransactionOutputInBlock(int currentBlock) throws ExecutionException {
+    public static List<TransactionOutput> getTransactionOutputInBlock(int currentBlock) throws IOException {
         List<TransactionOutput> transactionOutputs = new ArrayList<>();
         List<Transaction> transactions = getTransactionInBlock(currentBlock);
         for (Transaction tx :
@@ -210,23 +165,25 @@ public class BitcoinUtils {
         Coin insufficientMoney = Coin.ZERO;
         for (TransactionOutput utxo :
                 unspentTxOutputs) {
-            if(utxo.getAddressFromP2PKHScript(bitcoinClient.getNetParams()) == null)
-                continue;
-            if (!utxo.getAddressFromP2PKHScript(bitcoinClient.getNetParams()).toString().equals(privKey.toAddress(bitcoinClient.getNetParams()).toString()))
-                continue;
-            originalInputs.put(utxo,privKey);
             try {
+                if(utxo.getAddressFromP2PKHScript(bitcoinClient.getNetParams()) == null)
+                    continue;
+                if (!utxo.getAddressFromP2PKHScript(bitcoinClient.getNetParams()).toString().equals(privKey.toAddress(bitcoinClient.getNetParams()).toString()))
+                    continue;
+                originalInputs.put(utxo,privKey);
                 return sendTx(originalInputs,candidates,privKey.toAddress(bitcoinClient.getNetParams()),feePerKb);
             } catch (InsufficientMoneyException e) {
                 insufficientMoney = e.missing;
-                continue;
             } catch (IOException e) {
                 throw e;
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
         throw new InsufficientMoneyException(insufficientMoney);
     }
 
+    // Các hàm sau đây chưa test
     public static Script create2of3MultiSigRedeemScript(List<ECKey> pubKeys) {
         if (pubKeys.size()!=3) return null;
         else return ScriptBuilder.createRedeemScript(2, pubKeys);

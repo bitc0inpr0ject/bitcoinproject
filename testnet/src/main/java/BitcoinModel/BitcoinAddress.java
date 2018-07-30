@@ -1,78 +1,80 @@
 package BitcoinModel;
 
+import com.msgilligan.bitcoinj.rpc.BitcoinClient;
 import org.bitcoinj.core.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class BitcoinAddress {
     private String privKey = "";
     private String address = "";
     private long balance = 0;
-    private List<BitcoinTransactionOutput> txOutputs = new ArrayList<>();
+    private Set<BitcoinTransactionOutput> txOutputs = new HashSet<>();
+
+    private BitcoinAddress() { }
+
+    public static BitcoinAddress createBitcoinAddress(BitcoinClient client, String privKey) {
+        ECKey key;
+        try {
+            key = DumpedPrivateKey.fromBase58(client.getNetParams(),privKey).getKey();
+        } catch (Exception ignore) {
+            return null;
+        }
+        BitcoinAddress bAddress = new BitcoinAddress();
+        bAddress.privKey = key.getPrivateKeyEncoded(client.getNetParams()).toString();
+        bAddress.address = key.toAddress(client.getNetParams()).toString();
+        return bAddress;
+    }
 
     public String getPrivKey() {
         return privKey;
     }
-    public BitcoinAddress setPrivKey(String privKey) {
-        this.privKey = privKey;
-        return this;
-    }
     public String getAddress() {
         return address;
-    }
-    public BitcoinAddress setAddress(String address) {
-        this.address = address;
-        return this;
     }
     public long getBalance() {
         return balance;
     }
-    public BitcoinAddress setBalance(long balance) {
-        this.balance = balance;
-        return this;
-    }
     public List<BitcoinTransactionOutput> getTxOutputs() {
-        return txOutputs;
-    }
-    public BitcoinAddress setTxOutputs(List<BitcoinTransactionOutput> txOutputs) {
-        this.txOutputs = txOutputs;
-        return this;
+        return new ArrayList<>(txOutputs);
     }
 
-    public boolean verify(NetworkParameters params) {
-        try {
-            ECKey key = DumpedPrivateKey.fromBase58(params,privKey).getKey();
-            if (!address.equals(key.toAddress(params).toString())) return false;
-            Coin bal = Coin.ZERO;
-            for (BitcoinTransactionOutput txOutput :
-                    txOutputs) {
-                TransactionOutput transactionOutput = txOutput.getTransactionOutput(params);
-                if (!address.equals(transactionOutput.getAddressFromP2PKHScript(params).toString()))
-                    return false;
-                bal = bal.add(transactionOutput.getValue());
-            }
-            if (bal.getValue()!=balance) return false;
-            return true;
-        } catch (Exception ignore) { }
-        return false;
+    public void setTxOutputs(List<BitcoinTransactionOutput> bTxOutputs) {
+        this.txOutputs = new HashSet<>();
+        this.balance = 0;
+        addTxOutputs(bTxOutputs);
     }
-    public void autofix(NetworkParameters params) {
-        try {
-            ECKey key = DumpedPrivateKey.fromBase58(params,this.privKey).getKey();
-            this.address = key.toAddress(params).toString();
-            List<BitcoinTransactionOutput> bitcoinTransactionOutputList = new ArrayList<>();
-            Coin bal = Coin.ZERO;
+    public void addTxOutputs(List<BitcoinTransactionOutput> bTxOutputs) {
+        for (BitcoinTransactionOutput bTxOutput :
+                bTxOutputs) {
+            if (bTxOutput == null) continue;
+            if (!bTxOutput.getAddress().equals(this.address)) continue;
+            this.txOutputs.add(bTxOutput);
+        }
+        this.balance = 0;
+        for (BitcoinTransactionOutput bTxOutput :
+                this.txOutputs) {
+            this.balance += bTxOutput.getValue();
+        }
+    }
+    public void removeTxOutputs(List<BitcoinTransactionOutput> bTxOutputs) {
+        for (BitcoinTransactionOutput bTxOutput :
+                bTxOutputs) {
+            if (bTxOutput == null) continue;
+            if (!bTxOutput.getAddress().equals(this.address)) continue;
             for (BitcoinTransactionOutput txOutput :
                     this.txOutputs) {
-                TransactionOutput transactionOutput = txOutput.getTransactionOutput(params);
-                if (!address.equals(transactionOutput.getAddressFromP2PKHScript(params).toString()))
-                    continue;
-                bitcoinTransactionOutputList.add(txOutput);
-                bal = bal.add(transactionOutput.getValue());
+                if (bTxOutput.equals(txOutput)) this.txOutputs.remove(txOutput);
             }
-            this.txOutputs = bitcoinTransactionOutputList;
-            this.balance = bal.getValue();
-        } catch (Exception ignore) { }
+        }
+        this.balance = 0;
+        for (BitcoinTransactionOutput bTxOutput :
+                this.txOutputs) {
+            this.balance += bTxOutput.getValue();
+        }
     }
+
 }
