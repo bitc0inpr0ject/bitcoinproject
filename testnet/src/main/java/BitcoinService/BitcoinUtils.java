@@ -183,7 +183,6 @@ public class BitcoinUtils {
         throw new InsufficientMoneyException(insufficientMoney);
     }
 
-    // Các hàm sau đây chưa test
     public static Script create2of3MultiSigRedeemScript(List<ECKey> pubKeys) {
         if (pubKeys.size()!=3) return null;
         else return ScriptBuilder.createRedeemScript(2, pubKeys);
@@ -191,7 +190,23 @@ public class BitcoinUtils {
     public static Address create2of3MultiSigAddress(Script script2of3MultiSigRedeem) {
         return Address.fromP2SHScript(bitcoinClient.getNetParams(),ScriptBuilder.createP2SHOutputScript(script2of3MultiSigRedeem));
     }
-    public static Transaction createRaw2of3MultiSigTransaction(List<TransactionOutput> unspentTxOutputs, Script script2of3MultiSigRedeem, List<Pair<Address,Coin>> candidates, Coin feePerKb) throws InsufficientMoneyException {
+    public static Coin estimateFee(Transaction rawTx, Script script2of3MultiSigRedeem, Coin feePerKb) {
+        int sz = 0;
+        int maxSz = 0;
+        for (TransactionOutput txOutput :
+                rawTx.getOutputs()) {
+            sz += txOutput.getMessageSize();
+            if (txOutput.getMessageSize() > maxSz)
+                maxSz = txOutput.getMessageSize();
+        }
+        sz += maxSz;
+        for (TransactionInput txInput :
+                rawTx.getInputs()) {
+            sz += txInput.getMessageSize() + script2of3MultiSigRedeem.getProgram().length + 150*2;
+        }
+        return feePerKb.multiply(sz).divide(1000L);
+    }
+    public static Transaction create2of3MultiSigRawTx(List<TransactionOutput> unspentTxOutputs, Script script2of3MultiSigRedeem, List<Pair<Address,Coin>> candidates, Coin feePerKb) throws InsufficientMoneyException {
         Transaction rawTx = new Transaction(bitcoinClient.getNetParams());
         Coin maxMinNonDustValue = Coin.ZERO;
         for (Pair<Address, Coin> candidate :
@@ -208,25 +223,33 @@ public class BitcoinUtils {
                     create2of3MultiSigAddress(script2of3MultiSigRedeem).toString()))
                 continue;
             rawTx.addInput(utxo);
-            if (rawTx.getInputSum().isGreaterThan(rawTx.getOutputSum().add(feePerKb.multiply(rawTx.getMessageSize()*3).divide(1000L))))
+            if (rawTx.getInputSum().isGreaterThan(rawTx.getOutputSum().add(estimateFee(rawTx,script2of3MultiSigRedeem,feePerKb))))
                 break;
         }
-        if (rawTx.getInputSum().isLessThan(rawTx.getOutputSum().add(feePerKb.multiply(rawTx.getMessageSize()*3).divide(1000L))))
-            throw new InsufficientMoneyException(rawTx.getInputSum().subtract(rawTx.getOutputSum().add(feePerKb.multiply(rawTx.getMessageSize()*3).divide(1000L))));
+        if (rawTx.getInputSum().isLessThan(rawTx.getOutputSum().add(estimateFee(rawTx,script2of3MultiSigRedeem,feePerKb))))
+            throw new InsufficientMoneyException(rawTx.getOutputSum().add(estimateFee(rawTx,script2of3MultiSigRedeem,feePerKb)).subtract(rawTx.getInputSum()));
         if (rawTx.getInputSum().isGreaterThan(rawTx.getOutputSum()
-                .add(feePerKb.multiply(rawTx.getMessageSize()*3).divide(1000L))
+                .add(estimateFee(rawTx,script2of3MultiSigRedeem,feePerKb))
                 .add(maxMinNonDustValue)))
             rawTx.addOutput(rawTx.getInputSum().subtract(rawTx.getOutputSum()
-                    .add(feePerKb.multiply(rawTx.getMessageSize()*3).divide(1000L)))
+                    .add(estimateFee(rawTx,script2of3MultiSigRedeem,feePerKb)))
                     ,create2of3MultiSigAddress(script2of3MultiSigRedeem));
         return rawTx;
     }
-    public static List<Sha256Hash> createRaw2of3MultiSigTransactionHash(Transaction rawTx, Script script2of3MultiSigRedeem) {
+    public static List<Sha256Hash> create2of3MultiSigRawTxHash(Transaction rawTx, Script script2of3MultiSigRedeem) {
         List<Sha256Hash> sha256Hashes = new ArrayList<>();
         for (int i = 0; i < rawTx.getInputs().size(); i++) {
             sha256Hashes.add(rawTx.hashForSignature(i, script2of3MultiSigRedeem, Transaction.SigHash.ALL, false));
         }
         return sha256Hashes;
+    }
+    public static List<TransactionSignature> create2of3MultiSigTxSig(List<Sha256Hash> rawTxHashes, ECKey privKey) {
+        List<TransactionSignature> txSigs = new ArrayList<>();
+        for (Sha256Hash txHash :
+                rawTxHashes) {
+            txSigs.add(new TransactionSignature(privKey.sign(txHash), Transaction.SigHash.ALL, false));
+        }
+        return txSigs;
     }
     public static Transaction signRaw2of3MultiSigTransaction(Transaction rawTx, Script script2of3MultiSigRedeem, Pair<ECKey,List<TransactionSignature>> userTxSign, ECKey serverKey) {
         for (int i = 0; i < rawTx.getInputs().size(); i++) {
