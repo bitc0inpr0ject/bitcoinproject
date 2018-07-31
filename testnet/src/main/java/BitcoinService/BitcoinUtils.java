@@ -183,14 +183,17 @@ public class BitcoinUtils {
         throw new InsufficientMoneyException(insufficientMoney);
     }
 
-    public static Script create2of3MultiSigRedeemScript(List<ECKey> pubKeys) {
-        if (pubKeys.size()!=3) return null;
-        else return ScriptBuilder.createRedeemScript(2, pubKeys);
+    public static Script create2of3MultiSigRedeemScript(ECKey clientPubKey_1, ECKey clientPubKey_2, ECKey serverPubKey) {
+        List<ECKey> pubkeys = new ArrayList<>();
+        pubkeys.add(clientPubKey_1);
+        pubkeys.add(clientPubKey_2);
+        pubkeys.add(serverPubKey);
+        return ScriptBuilder.createMultiSigOutputScript(2, pubkeys);
     }
     public static Address create2of3MultiSigAddress(Script script2of3MultiSigRedeem) {
         return Address.fromP2SHScript(bitcoinClient.getNetParams(),ScriptBuilder.createP2SHOutputScript(script2of3MultiSigRedeem));
     }
-    public static Coin estimateFee(Transaction rawTx, Script script2of3MultiSigRedeem, Coin feePerKb) {
+    private static Coin estimateFee(Transaction rawTx, Script script2of3MultiSigRedeem, Coin feePerKb) {
         int sz = 0;
         int maxSz = 0;
         for (TransactionOutput txOutput :
@@ -251,16 +254,11 @@ public class BitcoinUtils {
         }
         return txSigs;
     }
-    public static Transaction signRaw2of3MultiSigTransaction(Transaction rawTx, Script script2of3MultiSigRedeem, Pair<ECKey,List<TransactionSignature>> userTxSign, ECKey serverKey) {
+    public static Transaction signRaw2of3MultiSigTransaction(Transaction rawTx, Script script2of3MultiSigRedeem, List<TransactionSignature> userTxSign, ECKey serverKey) {
         for (int i = 0; i < rawTx.getInputs().size(); i++) {
             List<TransactionSignature> txSignatures = new ArrayList<>();
-            for (ECKey pubKey :
-                    script2of3MultiSigRedeem.getPubKeys()) {
-                if (pubKey.toAddress(bitcoinClient.getNetParams()).toString().equals(userTxSign.getKey().toAddress(bitcoinClient.getNetParams()).toString()))
-                    txSignatures.add(userTxSign.getValue().get(i));
-                if (pubKey.toAddress(bitcoinClient.getNetParams()).toString().equals(serverKey.toAddress(bitcoinClient.getNetParams()).toString()))
-                    txSignatures.add(rawTx.calculateSignature(i,serverKey,script2of3MultiSigRedeem,Transaction.SigHash.ALL,false));
-            }
+            txSignatures.add(userTxSign.get(i));
+            txSignatures.add(rawTx.calculateSignature(i,serverKey,script2of3MultiSigRedeem,Transaction.SigHash.ALL,false));
             rawTx.getInput(i).setScriptSig(ScriptBuilder.createP2SHMultiSigInputScript(txSignatures,script2of3MultiSigRedeem));
             rawTx.getInput(i).verify();
         }

@@ -1,7 +1,7 @@
 package BitcoinService;
 
-import BitcoinModel.BitcoinAddress;
 import BitcoinModel.BitcoinTransactionOutput;
+import BitcoinModel.BitcoinWallet;
 import com.msgilligan.bitcoinj.rpc.BitcoinClient;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.Transaction;
@@ -14,13 +14,13 @@ import org.springframework.data.mongodb.core.query.Query;
 import java.io.IOException;
 import java.util.Collections;
 
-public class BitcoinAddressService {
-    public static BitcoinAddress load(MongoTemplate db, String address) {
-        return db.findOne(Query.query(Criteria.where("address").is(address)), BitcoinAddress.class);
+public class BitcoinWalletService {
+    public static BitcoinWallet load(MongoTemplate db, String address) {
+        return db.findOne(Query.query(Criteria.where("address").is(address)), BitcoinWallet.class);
     }
 
-    public static void save(MongoTemplate db, BitcoinAddress address) {
-        db.findAndRemove(Query.query(Criteria.where("address").is(address.getAddress())), BitcoinAddress.class);
+    public static void save(MongoTemplate db, BitcoinWallet address) {
+        db.findAndRemove(Query.query(Criteria.where("address").is(address.getAddress())), BitcoinWallet.class);
         db.save(address);
     }
 
@@ -33,13 +33,13 @@ public class BitcoinAddressService {
                     tx.getInputs()) {
                 try {
                     if (db.findOne(Query.query(Criteria.where("txOutputs").elemMatch(
-                                Criteria.where("txHash").is(txInput.getOutpoint().getHash().toString())
-                                        .and("index").is(txInput.getOutpoint().getIndex())
-                        )),BitcoinAddress.class) == null) continue;
+                            Criteria.where("txHash").is(txInput.getOutpoint().getHash().toString())
+                                    .and("index").is(txInput.getOutpoint().getIndex())
+                    )),BitcoinWallet.class) == null) continue;
                     BitcoinTransactionOutput bTxOutput = BitcoinTransactionOutput.createBitcoinTransactionOutput(bClient,
                             txInput.getOutpoint().getHash().toString(),
                             txInput.getOutpoint().getIndex());
-                    BitcoinAddress bAddress = db.findOne(Query.query(Criteria.where("address").is(bTxOutput.getAddress())), BitcoinAddress.class);
+                    BitcoinWallet bAddress = db.findOne(Query.query(Criteria.where("address").is(bTxOutput.getAddress())), BitcoinWallet.class);
                     bAddress.removeTxOutputs(Collections.singletonList(bTxOutput));
                     save(db,bAddress);
                 } catch (Exception ignore) { }
@@ -48,12 +48,12 @@ public class BitcoinAddressService {
                     tx.getOutputs()) {
                 try {
                     if (db.findOne(Query.query(Criteria.where("address").is(
-                                txOutput.getAddressFromP2PKHScript(params).toString()
-                        )), BitcoinAddress.class) == null) continue;
+                            txOutput.getAddressFromP2PKHScript(params).toString()
+                    )), BitcoinWallet.class) == null) continue;
                     BitcoinTransactionOutput bTxOutput = BitcoinTransactionOutput.createBitcoinTransactionOutput(bClient,
                             txOutput.getParentTransaction().getHashAsString(),
                             txOutput.getIndex());
-                    BitcoinAddress bAddress = db.findOne(Query.query(Criteria.where("address").is(bTxOutput.getAddress())), BitcoinAddress.class);
+                    BitcoinWallet bAddress = db.findOne(Query.query(Criteria.where("address").is(bTxOutput.getAddress())), BitcoinWallet.class);
                     bAddress.addTxOutputs(Collections.singletonList(bTxOutput));
                     save(db,bAddress);
                 } catch (Exception ignore) { }

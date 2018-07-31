@@ -21,14 +21,14 @@ public class BitcoinAddress {
 
     public static BitcoinAddress createBitcoinAddress(BitcoinClient client, String privKey) {
         ECKey key;
+        BitcoinAddress bAddress = new BitcoinAddress();
         try {
             key = DumpedPrivateKey.fromBase58(client.getNetParams(),privKey).getKey();
+            bAddress.privKey = key.getPrivateKeyEncoded(client.getNetParams()).toString();
+            bAddress.address = key.toAddress(client.getNetParams()).toString();
         } catch (Exception ignore) {
             return null;
         }
-        BitcoinAddress bAddress = new BitcoinAddress();
-        bAddress.privKey = key.getPrivateKeyEncoded(client.getNetParams()).toString();
-        bAddress.address = key.toAddress(client.getNetParams()).toString();
         return bAddress;
     }
 
