@@ -26,7 +26,11 @@ public class BitcoinTransactionOutput {
             return null;
         }
         BitcoinTransactionOutput bTxOutput = new BitcoinTransactionOutput();
-        bTxOutput.address = txOutput.getAddressFromP2PKHScript(params).toString();
+        if (txOutput.getAddressFromP2PKHScript(params) != null)
+            bTxOutput.address = txOutput.getAddressFromP2PKHScript(params).toString();
+        else if (txOutput.getAddressFromP2SH(params) != null)
+            bTxOutput.address = txOutput.getAddressFromP2SH(params).toString();
+        else return null;
         bTxOutput.txHash = txOutput.getParentTransaction().getHashAsString();
         bTxOutput.index = txOutput.getIndex();
         bTxOutput.value = txOutput.getValue().value;

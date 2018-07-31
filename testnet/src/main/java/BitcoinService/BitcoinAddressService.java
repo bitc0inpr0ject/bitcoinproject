@@ -49,7 +49,11 @@ public class BitcoinAddressService {
                 try {
                     if (db.findOne(Query.query(Criteria.where("address").is(
                                 txOutput.getAddressFromP2PKHScript(params).toString()
-                        )), BitcoinAddress.class) == null) continue;
+                        )),BitcoinAddress.class) == null) continue;
+                    if (db.findOne(Query.query(Criteria.where("txOutputs").elemMatch(
+                            Criteria.where("txHash").is(txOutput.getParentTransaction().getHashAsString())
+                                    .and("index").is(txOutput.getIndex())
+                    )),BitcoinAddress.class) != null) continue;
                     BitcoinTransactionOutput bTxOutput = BitcoinTransactionOutput.createBitcoinTransactionOutput(bClient,
                             txOutput.getParentTransaction().getHashAsString(),
                             txOutput.getIndex());

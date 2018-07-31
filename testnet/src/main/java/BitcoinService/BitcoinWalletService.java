@@ -19,9 +19,9 @@ public class BitcoinWalletService {
         return db.findOne(Query.query(Criteria.where("address").is(address)), BitcoinWallet.class);
     }
 
-    public static void save(MongoTemplate db, BitcoinWallet address) {
-        db.findAndRemove(Query.query(Criteria.where("address").is(address.getAddress())), BitcoinWallet.class);
-        db.save(address);
+    public static void save(MongoTemplate db, BitcoinWallet wallet) {
+        db.findAndRemove(Query.query(Criteria.where("address").is(wallet.getAddress())), BitcoinWallet.class);
+        db.save(wallet);
     }
 
     public static void update(MongoTemplate db, int currentBlock) throws IOException {
@@ -39,23 +39,27 @@ public class BitcoinWalletService {
                     BitcoinTransactionOutput bTxOutput = BitcoinTransactionOutput.createBitcoinTransactionOutput(bClient,
                             txInput.getOutpoint().getHash().toString(),
                             txInput.getOutpoint().getIndex());
-                    BitcoinWallet bAddress = db.findOne(Query.query(Criteria.where("address").is(bTxOutput.getAddress())), BitcoinWallet.class);
-                    bAddress.removeTxOutputs(Collections.singletonList(bTxOutput));
-                    save(db,bAddress);
+                    BitcoinWallet bWallet = db.findOne(Query.query(Criteria.where("address").is(bTxOutput.getAddress())), BitcoinWallet.class);
+                    bWallet.removeTxOutputs(Collections.singletonList(bTxOutput));
+                    save(db,bWallet);
                 } catch (Exception ignore) { }
             }
             for (TransactionOutput txOutput :
                     tx.getOutputs()) {
                 try {
                     if (db.findOne(Query.query(Criteria.where("address").is(
-                            txOutput.getAddressFromP2PKHScript(params).toString()
-                    )), BitcoinWallet.class) == null) continue;
+                            txOutput.getAddressFromP2SH(params).toString()
+                    )),BitcoinWallet.class) == null) continue;
+                    if (db.findOne(Query.query(Criteria.where("txOutputs").elemMatch(
+                            Criteria.where("txHash").is(txOutput.getParentTransaction().getHashAsString())
+                                    .and("index").is(txOutput.getIndex())
+                    )),BitcoinWallet.class) != null) continue;
                     BitcoinTransactionOutput bTxOutput = BitcoinTransactionOutput.createBitcoinTransactionOutput(bClient,
                             txOutput.getParentTransaction().getHashAsString(),
                             txOutput.getIndex());
-                    BitcoinWallet bAddress = db.findOne(Query.query(Criteria.where("address").is(bTxOutput.getAddress())), BitcoinWallet.class);
-                    bAddress.addTxOutputs(Collections.singletonList(bTxOutput));
-                    save(db,bAddress);
+                    BitcoinWallet bWallet = db.findOne(Query.query(Criteria.where("address").is(bTxOutput.getAddress())), BitcoinWallet.class);
+                    bWallet.addTxOutputs(Collections.singletonList(bTxOutput));
+                    save(db,bWallet);
                 } catch (Exception ignore) { }
             }
         }
