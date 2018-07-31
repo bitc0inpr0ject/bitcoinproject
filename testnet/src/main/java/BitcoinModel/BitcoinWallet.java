@@ -99,7 +99,7 @@ public class BitcoinWallet {
                 candidates,
                 feePerKb);
     }
-    public List<Sha256Hash> RawTxHashes(Transaction rawTx) {
+    public List<Sha256Hash> createRawTxHashes(Transaction rawTx) {
         return BitcoinUtils.create2of3MultiSigRawTxHash(rawTx,getRedeemScript());
     }
     public Transaction signAndSendTx(Transaction rawTx, List<TransactionSignature> userTxSign) {

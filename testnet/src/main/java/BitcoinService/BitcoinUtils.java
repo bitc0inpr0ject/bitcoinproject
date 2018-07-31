@@ -205,7 +205,7 @@ public class BitcoinUtils {
         sz += maxSz;
         for (TransactionInput txInput :
                 rawTx.getInputs()) {
-            sz += txInput.getMessageSize() + script2of3MultiSigRedeem.getProgram().length + 150*2;
+            sz += txInput.getMessageSize() + script2of3MultiSigRedeem.getProgram().length + 100*2;
         }
         return feePerKb.multiply(sz).divide(1000L);
     }

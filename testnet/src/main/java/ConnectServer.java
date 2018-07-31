@@ -1,5 +1,4 @@
 import BitcoinModel.BitcoinAddress;
-import BitcoinModel.BitcoinTransactionOutput;
 import BitcoinModel.BitcoinWallet;
 import BitcoinService.BitcoinAddressService;
 import BitcoinService.BitcoinUtils;
@@ -9,12 +8,9 @@ import javafx.util.Pair;
 import org.bitcoinj.core.*;
 import org.bitcoinj.crypto.TransactionSignature;
 import org.bitcoinj.params.TestNet2Params;
-import org.bitcoinj.script.Script;
-import org.bitcoinj.script.ScriptChunk;
-import org.bitcoinj.wallet.Wallet;
-import org.omg.IOP.TransactionService;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
 
 public class ConnectServer {
     public static void main(String[] args){
@@ -40,23 +36,45 @@ public class ConnectServer {
             try {
                 System.out.println(BitcoinUtils.getBlockCount());
 
-                BitcoinAddress address = BitcoinAddress.createBitcoinAddress(BitcoinUtils.getBitcoinClientInstance(),
-                        "cUdyjQyR3VVJfB6mEAJd3E9xWEFs4pfwbm3PVhmRaTczQVaDkcUY");
-                BitcoinAddressService.save(MongoDbService.getMongoTemplateInstance(),address);
+//                BitcoinAddress address = BitcoinAddress.createBitcoinAddress(BitcoinUtils.getBitcoinClientInstance(),
+//                        "cSmtVqfTnr4xPfMMu5MEpjE65rkvsLR5mytJzGXZUFKCmwjiJKT9");
+//                BitcoinAddressService.save(MongoDbService.getMongoTemplateInstance(),address);
+//
+//                BitcoinWallet wallet = BitcoinWallet.createBitcoinWallet(
+//                        DumpedPrivateKey.fromBase58(params,"cVJXn1fYezvJRYGphvtvsmE5tyD5WCmKE2d72bJQ7hSYwWK6rPYQ").getKey(),
+//                        DumpedPrivateKey.fromBase58(params,"cUeaPvaHz1SepBcznwS3EYoMAY8tQFcGRaYmXLqQeqH2fop4RA6Y").getKey(),
+//                        DumpedPrivateKey.fromBase58(params,"cSmtVqfTnr4xPfMMu5MEpjE65rkvsLR5mytJzGXZUFKCmwjiJKT9").getKey()
+//                );
+//                BitcoinWalletService.save(MongoDbService.getMongoTemplateInstance(),wallet);
 
-                BitcoinWallet wallet = BitcoinWallet.createBitcoinWallet(
-                        DumpedPrivateKey.fromBase58(params,"cVJXn1fYezvJRYGphvtvsmE5tyD5WCmKE2d72bJQ7hSYwWK6rPYQ").getKey(),
-                        DumpedPrivateKey.fromBase58(params,"cUeaPvaHz1SepBcznwS3EYoMAY8tQFcGRaYmXLqQeqH2fop4RA6Y").getKey(),
-                        DumpedPrivateKey.fromBase58(params,"cSmtVqfTnr4xPfMMu5MEpjE65rkvsLR5mytJzGXZUFKCmwjiJKT9").getKey()
-                );
-                BitcoinWalletService.save(MongoDbService.getMongoTemplateInstance(),wallet);
+//                BitcoinAddressService.update(MongoDbService.getMongoTemplateInstance(),1353694);
+//                BitcoinAddressService.update(MongoDbService.getMongoTemplateInstance(),1353890);
+//                BitcoinAddressService.update(MongoDbService.getMongoTemplateInstance(),1355103);
+//                BitcoinAddressService.update(MongoDbService.getMongoTemplateInstance(),1356311);
 
-                BitcoinAddressService.update(MongoDbService.getMongoTemplateInstance(),1353694);
-                BitcoinAddressService.update(MongoDbService.getMongoTemplateInstance(),1353890);
-                BitcoinAddressService.update(MongoDbService.getMongoTemplateInstance(),1355103);
-                BitcoinAddressService.update(MongoDbService.getMongoTemplateInstance(),1355103);
+//                BitcoinWalletService.update(MongoDbService.getMongoTemplateInstance(),1355073);
+//                BitcoinWalletService.update(MongoDbService.getMongoTemplateInstance(),1355103);
 
-                BitcoinWalletService.update(MongoDbService.getMongoTemplateInstance(),1355073);
+//                BitcoinAddress address = BitcoinAddressService.load(MongoDbService.getMongoTemplateInstance(),"ms5fFtefrWVEPZeg8b3LM9ZMmYcM4NuSkh");
+//                BitcoinWallet wallet = BitcoinWalletService.load(MongoDbService.getMongoTemplateInstance(),"2Mtmik5182xAATbKvp9Jg1dM6KCfEGvgnfS");
+//
+//                Transaction tx = wallet.createRawTx(
+//                        Collections.singletonList(new Pair<>(Address.fromBase58(params,address.getAddress()),Coin.valueOf(10000))),
+//                        Coin.parseCoin("0.0008"));
+//                List<Sha256Hash> hashes = wallet.createRawTxHashes(tx);
+//                List<TransactionSignature> transactionSignatures = BitcoinUtils.create2of3MultiSigTxSig(
+//                        hashes,
+//                        DumpedPrivateKey.fromBase58(params,"cUeaPvaHz1SepBcznwS3EYoMAY8tQFcGRaYmXLqQeqH2fop4RA6Y").getKey());
+//                System.out.println(wallet.signAndSendTx(tx,transactionSignatures));
+
+                System.out.println(
+                        BitcoinUtils.getBitcoinClientInstance()
+                                .getRawTransaction(Sha256Hash.wrap("962ea48a5c84a6c909369a1382f42d412551ece81546296ec2f7fc70ebaadd92")).getOutput(0).isAvailableForSpending());
+
+//                BitcoinUtils.getBitcoinClientInstance().waitForBlock(1356372,3600);
+//                BitcoinAddressService.update(MongoDbService.getMongoTemplateInstance(),1356372);
+//                BitcoinWalletService.update(MongoDbService.getMongoTemplateInstance(),1356372);
+
 
                 System.out.println("Done");
             } catch (Exception e) {
