@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -45,9 +46,9 @@ public class BitcoinWalletService {
         for (TransactionOutput txOutput :
                 BitcoinUtils.getTransactionOutputInBlock(client,currentBlock-confirmations+1)) {
             try {
-                if (txOutput.getAddressFromP2PKHScript(params) == null) continue;
+                if (txOutput.getScriptPubKey().getToAddress(params) == null) continue;
                 if (db.findOne(Query.query(Criteria.where("address").is(
-                        txOutput.getAddressFromP2PKHScript(params).toString())),
+                        txOutput.getScriptPubKey().getToAddress(params).toString())),
                         BitcoinWallet.class) == null) continue;
                 if (db.findOne(Query.query(Criteria.where("txOutputs").elemMatch(
                         Criteria.where("txHash").is(txOutput.getParentTransaction().getHashAsString())
@@ -100,18 +101,21 @@ public class BitcoinWalletService {
                     userTxSign,
                     DumpedPrivateKey.fromBase58(params,wallet.getServerPrivKey()).getKey());
             client.sendRawTransaction(rawTx);
-            List<BitcoinTransactionOutput> bTxOutputs = wallet.getTxOutputs();
             List<TransactionOutput> txOutputs = rawTx.getOutputs();
+            List<BitcoinTransactionOutput> bTxOutputs = new ArrayList<>();
             for (BitcoinTransactionOutput bTxOutput :
-                    bTxOutputs) {
+                    wallet.getTxOutputs()) {
+                boolean chk = false;
                 for (TransactionOutput txOutput :
                         txOutputs) {
                     if (bTxOutput.getTxHash().equals(txOutput.getParentTransaction().getHashAsString())
                             && bTxOutput.getIndex() == txOutput.getIndex()) {
-                        bTxOutputs.remove(bTxOutput);
+                        chk = true;
                         break;
                     }
                 }
+                if (chk) continue;
+                bTxOutputs.add(bTxOutput);
             }
             wallet.setTxOutputs(bTxOutputs);
             save(db,wallet);

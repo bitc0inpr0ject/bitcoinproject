@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -44,9 +45,9 @@ public class BitcoinAddressService {
         for (TransactionOutput txOutput :
                 BitcoinUtils.getTransactionOutputInBlock(client,currentBlock-confirmations+1)) {
             try {
-                if (txOutput.getAddressFromP2PKHScript(params) == null) continue;
+                if (txOutput.getScriptPubKey().getToAddress(params) == null) continue;
                 if (db.findOne(Query.query(Criteria.where("address").is(
-                        txOutput.getAddressFromP2PKHScript(params).toString())),
+                        txOutput.getScriptPubKey().getToAddress(params).toString())),
                         BitcoinAddress.class) == null) continue;
                 if (db.findOne(Query.query(Criteria.where("txOutputs").elemMatch(
                         Criteria.where("txHash").is(txOutput.getParentTransaction().getHashAsString())
@@ -67,23 +68,26 @@ public class BitcoinAddressService {
             NetworkParameters params = client.getNetParams();
             BitcoinAddress bAddress = load(db,from);
             if (bAddress == null) return null;
-            List<BitcoinTransactionOutput> bTxOutputs = bAddress.getTxOutputs();
-            List<TransactionOutput> txOutputs = BitcoinTransactionOutput.getTransactionOutputList(client,bTxOutputs);
+            List<TransactionOutput> txOutputs = BitcoinTransactionOutput.getTransactionOutputList(client,bAddress.getTxOutputs());
             Transaction tx = BitcoinUtils.sendToAddressesByPrivKey(
                     params,
                     txOutputs,
                     DumpedPrivateKey.fromBase58(params,bAddress.getPrivKey()).getKey(),
                     candidates, feePerKb);
+            List<BitcoinTransactionOutput> bTxOutputs = new ArrayList<>();
             for (BitcoinTransactionOutput bTxOutput :
-                    bTxOutputs) {
+                    bAddress.getTxOutputs()) {
+                boolean chk = false;
                 for (TransactionOutput txOutput :
                         txOutputs) {
                     if (bTxOutput.getTxHash().equals(txOutput.getParentTransaction().getHashAsString())
                             && bTxOutput.getIndex() == txOutput.getIndex()) {
-                        bTxOutputs.remove(bTxOutput);
+                        chk = true;
                         break;
                     }
                 }
+                if (chk) continue;
+                bTxOutputs.add(bTxOutput);
             }
             bAddress.setTxOutputs(bTxOutputs);
             save(db,bAddress);

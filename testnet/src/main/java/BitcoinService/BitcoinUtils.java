@@ -6,8 +6,13 @@ import org.bitcoinj.core.*;
 import org.bitcoinj.crypto.TransactionSignature;
 import org.bitcoinj.script.Script;
 import org.bitcoinj.script.ScriptBuilder;
+import org.springframework.data.mongodb.core.MongoTemplate;
 
+import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -166,9 +171,9 @@ public class BitcoinUtils {
         for (TransactionOutput utxo :
                 unspentTxOutputs) {
             try {
-                if(utxo.getAddressFromP2PKHScript(params) == null)
+                if(utxo.getScriptPubKey().getToAddress(params) == null)
                     continue;
-                if (!utxo.getAddressFromP2PKHScript(params).toString().equals(privKey.toAddress(params).toString()))
+                if (!utxo.getScriptPubKey().getToAddress(params).toString().equals(privKey.toAddress(params).toString()))
                     continue;
                 originalInputs.put(utxo,privKey);
                 return sendTx(params,originalInputs,candidates,privKey.toAddress(params),feePerKb);
@@ -220,9 +225,9 @@ public class BitcoinUtils {
         }
         for (TransactionOutput utxo :
                 unspentTxOutputs) {
-            if(utxo.getAddressFromP2SH(params) == null)
+            if(utxo.getScriptPubKey().getToAddress(params) == null)
                 continue;
-            if (!utxo.getAddressFromP2SH(params).toString().equals(
+            if (!utxo.getScriptPubKey().getToAddress(params).toString().equals(
                     create2of3MultiSigAddress(params,script2of3MultiSigRedeem).toString()))
                 continue;
             rawTx.addInput(utxo);
@@ -263,6 +268,62 @@ public class BitcoinUtils {
             rawTx.getInput(i).verify();
         }
         return rawTx;
+    }
+
+    public static void getNotify(MongoTemplate mongoTemplate, BitcoinClient client, int confirmations) {
+        Thread secondaryThread = new Thread(new Runnable() {
+            public void run()
+            {
+                MongoTemplate _mongoTemplate = mongoTemplate;
+                BitcoinClient _client = client;
+                int _confirmations = confirmations;
+                ServerSocket echoServer = null;
+                try {
+                    echoServer = new ServerSocket(9999);
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                    return;
+                }
+                try {
+                    while (true) {
+                        Socket clientSocket = echoServer.accept();
+                        PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+                        DataInputStream is = new DataInputStream(clientSocket.getInputStream());
+                        out.println("Halo");
+                        while (true) {
+                            if (out.checkError()) {
+                                System.out.println("ERROR writing data to socket !!!");
+                                break;
+                            }
+                            String mess = is.readLine();
+                            if (mess != null){
+                                int _block = Integer.parseInt(mess);
+                                if (_block > 0) {
+                                    clientSocket.close();
+                                    System.out.println(_block);
+                                    updateDB(_mongoTemplate,_client,_block,_confirmations);
+                                }
+                            }
+                            else
+                                break;
+                            out.println("Ok!");
+                        }
+                    }
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }});
+        secondaryThread.start();
+    }
+    public static void updateDB(MongoTemplate mongoTemplate, BitcoinClient client, int currentBlock, int confirmations){
+        try {
+            BitcoinAddressService.update(mongoTemplate,client,currentBlock,confirmations);
+            BitcoinWalletService.update(mongoTemplate,client,currentBlock,confirmations);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

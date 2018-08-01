@@ -1,10 +1,7 @@
 package BitcoinModel;
 
 import BitcoinService.BitcoinUtils;
-import com.msgilligan.bitcoinj.rpc.BitcoinClient;
-import javafx.util.Pair;
 import org.bitcoinj.core.*;
-import org.bitcoinj.crypto.TransactionSignature;
 import org.bitcoinj.script.Script;
 
 import java.util.*;
