@@ -52,14 +52,36 @@ public class ConnectServer {
 //                        1356461,
 //                        1);
 
-                BitcoinAddressService.sendToAddresses(
+//                BitcoinAddressService.sendToAddresses(
+//                        MongoDbService.getMongoTemplateInstance(),
+//                        "ms5fFtefrWVEPZeg8b3LM9ZMmYcM4NuSkh",
+//                        BitcoinUtils.getBitcoinClientInstance(),
+//                        Collections.singletonList(new Pair<>(
+//                                Address.fromBase58(params,"2Mtmik5182xAATbKvp9Jg1dM6KCfEGvgnfS"),
+//                                Coin.valueOf(1000000))),
+//                        Coin.parseCoin("0.001"));
+
+                Transaction tx = BitcoinWalletService.createRawTx(
                         MongoDbService.getMongoTemplateInstance(),
-                        "ms5fFtefrWVEPZeg8b3LM9ZMmYcM4NuSkh",
+                        "2Mtmik5182xAATbKvp9Jg1dM6KCfEGvgnfS",
                         BitcoinUtils.getBitcoinClientInstance(),
                         Collections.singletonList(new Pair<>(
-                                Address.fromBase58(params,"2Mtmik5182xAATbKvp9Jg1dM6KCfEGvgnfS"),
-                                Coin.valueOf(1000000))),
+                                Address.fromBase58(params,"ms5fFtefrWVEPZeg8b3LM9ZMmYcM4NuSkh"),
+                                Coin.valueOf(500000))),
                         Coin.parseCoin("0.001"));
+                List<Sha256Hash> hashes = BitcoinWalletService.createRawTxHashes(
+                        MongoDbService.getMongoTemplateInstance(),
+                        "2Mtmik5182xAATbKvp9Jg1dM6KCfEGvgnfS",
+                        tx);
+                List<TransactionSignature> signatures = BitcoinUtils.create2of3MultiSigTxSig(
+                        hashes,
+                        DumpedPrivateKey.fromBase58(params,"cVJXn1fYezvJRYGphvtvsmE5tyD5WCmKE2d72bJQ7hSYwWK6rPYQ").getKey());
+                BitcoinWalletService.signAndSendTx(
+                        MongoDbService.getMongoTemplateInstance(),
+                        "2Mtmik5182xAATbKvp9Jg1dM6KCfEGvgnfS",
+                        BitcoinUtils.getBitcoinClientInstance(),
+                        tx,
+                        signatures);
 
                 System.out.println("Done");
             } catch (Exception e) {

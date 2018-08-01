@@ -101,15 +101,14 @@ public class BitcoinWalletService {
                     userTxSign,
                     DumpedPrivateKey.fromBase58(params,wallet.getServerPrivKey()).getKey());
             client.sendRawTransaction(rawTx);
-            List<TransactionOutput> txOutputs = rawTx.getOutputs();
             List<BitcoinTransactionOutput> bTxOutputs = new ArrayList<>();
             for (BitcoinTransactionOutput bTxOutput :
                     wallet.getTxOutputs()) {
                 boolean chk = false;
-                for (TransactionOutput txOutput :
-                        txOutputs) {
-                    if (bTxOutput.getTxHash().equals(txOutput.getParentTransaction().getHashAsString())
-                            && bTxOutput.getIndex() == txOutput.getIndex()) {
+                for (TransactionInput txInput :
+                        rawTx.getInputs()) {
+                    if (bTxOutput.getTxHash().equals(txInput.getOutpoint().getHash().toString())
+                            && bTxOutput.getIndex() == txInput.getOutpoint().getIndex()) {
                         chk = true;
                         break;
                     }

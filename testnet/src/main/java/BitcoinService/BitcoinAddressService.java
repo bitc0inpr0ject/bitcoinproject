@@ -78,10 +78,10 @@ public class BitcoinAddressService {
             for (BitcoinTransactionOutput bTxOutput :
                     bAddress.getTxOutputs()) {
                 boolean chk = false;
-                for (TransactionOutput txOutput :
-                        txOutputs) {
-                    if (bTxOutput.getTxHash().equals(txOutput.getParentTransaction().getHashAsString())
-                            && bTxOutput.getIndex() == txOutput.getIndex()) {
+                for (TransactionInput txInput :
+                        tx.getInputs()) {
+                    if (bTxOutput.getTxHash().equals(txInput.getOutpoint().getHash().toString())
+                            && bTxOutput.getIndex() == txInput.getOutpoint().getIndex()) {
                         chk = true;
                         break;
                     }
