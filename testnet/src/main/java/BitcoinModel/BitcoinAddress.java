@@ -1,11 +1,7 @@
 package BitcoinModel;
 
-import BitcoinService.BitcoinUtils;
-import com.msgilligan.bitcoinj.rpc.BitcoinClient;
-import javafx.util.Pair;
 import org.bitcoinj.core.*;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -19,17 +15,16 @@ public class BitcoinAddress {
 
     private BitcoinAddress() { }
 
-    public static BitcoinAddress createBitcoinAddress(BitcoinClient client, String privKey) {
-        ECKey key;
-        BitcoinAddress bAddress = new BitcoinAddress();
+    public static BitcoinAddress createBitcoinAddress(NetworkParameters params, String privKey) {
         try {
-            key = DumpedPrivateKey.fromBase58(client.getNetParams(),privKey).getKey();
-            bAddress.privKey = key.getPrivateKeyEncoded(client.getNetParams()).toString();
-            bAddress.address = key.toAddress(client.getNetParams()).toString();
+            ECKey key = DumpedPrivateKey.fromBase58(params,privKey).getKey();
+            BitcoinAddress bAddress = new BitcoinAddress();
+            bAddress.privKey = key.getPrivateKeyEncoded(params).toString();
+            bAddress.address = key.toAddress(params).toString();
+            return bAddress;
         } catch (Exception ignore) {
             return null;
         }
-        return bAddress;
     }
 
     public String getPrivKey() {
@@ -78,16 +73,6 @@ public class BitcoinAddress {
                 this.txOutputs) {
             this.balance += bTxOutput.getValue();
         }
-    }
-
-    public Transaction sendToAddresses(List<Pair<Address,Coin>> candidates, Coin feePerKb) throws InsufficientMoneyException, IOException {
-        BitcoinClient bClient = BitcoinUtils.getBitcoinClientInstance();
-        NetworkParameters params = bClient.getNetParams();
-        return BitcoinUtils.sendToAddressesByPrivKey(
-                BitcoinTransactionOutput.getTransactionOutputList(
-                        bClient,getTxOutputs()),
-                DumpedPrivateKey.fromBase58(params,this.privKey).getKey(),
-                candidates, feePerKb);
     }
 
 }

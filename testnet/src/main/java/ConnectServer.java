@@ -34,7 +34,7 @@ public class ConnectServer {
         }
         else {
             try {
-                System.out.println(BitcoinUtils.getBlockCount());
+                System.out.println(BitcoinUtils.getBlockCount(BitcoinUtils.getBitcoinClientInstance()));
 
 //                BitcoinAddress address = BitcoinAddress.createBitcoinAddress(BitcoinUtils.getBitcoinClientInstance(),
 //                        "cSmtVqfTnr4xPfMMu5MEpjE65rkvsLR5mytJzGXZUFKCmwjiJKT9");
@@ -66,10 +66,6 @@ public class ConnectServer {
 //                        hashes,
 //                        DumpedPrivateKey.fromBase58(params,"cUeaPvaHz1SepBcznwS3EYoMAY8tQFcGRaYmXLqQeqH2fop4RA6Y").getKey());
 //                System.out.println(wallet.signAndSendTx(tx,transactionSignatures));
-
-                System.out.println(
-                        BitcoinUtils.getBitcoinClientInstance()
-                                .getRawTransaction(Sha256Hash.wrap("962ea48a5c84a6c909369a1382f42d412551ece81546296ec2f7fc70ebaadd92")).getOutput(0).isAvailableForSpending());
 
 //                BitcoinUtils.getBitcoinClientInstance().waitForBlock(1356372,3600);
 //                BitcoinAddressService.update(MongoDbService.getMongoTemplateInstance(),1356372);

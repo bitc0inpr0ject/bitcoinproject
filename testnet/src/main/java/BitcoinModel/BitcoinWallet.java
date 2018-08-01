@@ -18,26 +18,19 @@ public class BitcoinWallet {
 
     private BitcoinWallet() { }
 
-    public static BitcoinWallet createBitcoinWallet(ECKey clientPubKey_1, ECKey clientPubKey_2, ECKey serverPrivKey) {
-        BitcoinClient bitcoinClient;
-        NetworkParameters params;
-        String privKey;
-        Address address;
-        Script redeemScript;
-        BitcoinWallet bitcoinWallet = new BitcoinWallet();
+    public static BitcoinWallet createBitcoinWallet(NetworkParameters params, ECKey clientPubKey_1, ECKey clientPubKey_2, ECKey serverPrivKey) {
         try {
-            bitcoinClient = BitcoinUtils.getBitcoinClientInstance();
-            params = bitcoinClient.getNetParams();
-            privKey = serverPrivKey.getPrivateKeyEncoded(params).toString();
-            redeemScript = BitcoinUtils.create2of3MultiSigRedeemScript(clientPubKey_1,clientPubKey_2,serverPrivKey);
-            address = BitcoinUtils.create2of3MultiSigAddress(redeemScript);
+            String privKey = serverPrivKey.getPrivateKeyEncoded(params).toString();
+            Script redeemScript = BitcoinUtils.create2of3MultiSigRedeemScript(clientPubKey_1,clientPubKey_2,serverPrivKey);
+            Address address = BitcoinUtils.create2of3MultiSigAddress(params,redeemScript);
+            BitcoinWallet bitcoinWallet = new BitcoinWallet();
             bitcoinWallet.serverPrivKey = privKey;
             bitcoinWallet.address = address.toString();
             bitcoinWallet.redeemScript = Base64.getEncoder().encodeToString(redeemScript.getProgram());
+            return bitcoinWallet;
         } catch (Exception ignore) {
             return null;
         }
-        return bitcoinWallet;
     }
 
     public String getServerPrivKey() {
@@ -91,33 +84,4 @@ public class BitcoinWallet {
         }
     }
 
-    public Transaction createRawTx(List<Pair<Address,Coin>> candidates, Coin feePerKb) throws InsufficientMoneyException {
-        BitcoinClient bClient = BitcoinUtils.getBitcoinClientInstance();
-        return BitcoinUtils.create2of3MultiSigRawTx(
-                BitcoinTransactionOutput.getTransactionOutputList(bClient,getTxOutputs()),
-                getRedeemScript(),
-                candidates,
-                feePerKb);
-    }
-    public List<Sha256Hash> createRawTxHashes(Transaction rawTx) {
-        return BitcoinUtils.create2of3MultiSigRawTxHash(rawTx,getRedeemScript());
-    }
-    public Transaction signAndSendTx(Transaction rawTx, List<TransactionSignature> userTxSign) {
-        BitcoinClient bitcoinClient;
-        NetworkParameters params;
-        Transaction tx;
-        try {
-            bitcoinClient = BitcoinUtils.getBitcoinClientInstance();
-            params = bitcoinClient.getNetParams();
-            tx = BitcoinUtils.signRaw2of3MultiSigTransaction(
-                    rawTx,
-                    getRedeemScript(),
-                    userTxSign,
-                    DumpedPrivateKey.fromBase58(params,getServerPrivKey()).getKey());
-            bitcoinClient.sendRawTransaction(tx);
-        } catch (Exception ignore) {
-            return null;
-        }
-        return tx;
-    }
 }

@@ -17,24 +17,18 @@ public class BitcoinTransactionOutput {
     private BitcoinTransactionOutput() { }
 
     public static BitcoinTransactionOutput createBitcoinTransactionOutput(BitcoinClient client, String txHash, long index) {
-        NetworkParameters params;
-        TransactionOutput txOutput;
         try {
-            params = client.getNetParams();
-            txOutput = client.getRawTransaction(Sha256Hash.wrap(txHash)).getOutput(index);
+            NetworkParameters params = client.getNetParams();
+            TransactionOutput txOutput = client.getRawTransaction(Sha256Hash.wrap(txHash)).getOutput(index);
+            BitcoinTransactionOutput bTxOutput = new BitcoinTransactionOutput();
+            bTxOutput.address = txOutput.getScriptPubKey().getToAddress(params).toString();
+            bTxOutput.txHash = txOutput.getParentTransaction().getHashAsString();
+            bTxOutput.index = txOutput.getIndex();
+            bTxOutput.value = txOutput.getValue().value;
+            return bTxOutput;
         } catch (Exception ignore) {
             return null;
         }
-        BitcoinTransactionOutput bTxOutput = new BitcoinTransactionOutput();
-        if (txOutput.getAddressFromP2PKHScript(params) != null)
-            bTxOutput.address = txOutput.getAddressFromP2PKHScript(params).toString();
-        else if (txOutput.getAddressFromP2SH(params) != null)
-            bTxOutput.address = txOutput.getAddressFromP2SH(params).toString();
-        else return null;
-        bTxOutput.txHash = txOutput.getParentTransaction().getHashAsString();
-        bTxOutput.index = txOutput.getIndex();
-        bTxOutput.value = txOutput.getValue().value;
-        return bTxOutput;
     }
 
     public String getAddress() {

@@ -34,28 +34,28 @@ public class BitcoinUtils {
     public static BitcoinClient getBitcoinClientInstance() {
         return bitcoinClient;
     }
-    public static List<Transaction> getTransactionInBlock(int currentBlock) throws IOException {
-        return bitcoinClient.getBlock(currentBlock).getTransactions();
+    public static List<Transaction> getTransactionInBlock(BitcoinClient client, int currentBlock) throws IOException {
+        return client.getBlock(currentBlock).getTransactions();
     }
-    public static Transaction getTransaction(String sha256Hash) throws IOException {
-        return getBitcoinClientInstance().getRawTransaction(Sha256Hash.wrap(sha256Hash));
+    public static Transaction getTransaction(BitcoinClient client, String sha256Hash) throws IOException {
+        return client.getRawTransaction(Sha256Hash.wrap(sha256Hash));
     }
-    public static int getBlockCount() throws IOException {
-        return bitcoinClient.getBlockCount();
+    public static int getBlockCount(BitcoinClient client) throws IOException {
+        return client.getBlockCount();
     }
 
-    public static List<TransactionInput> getTransactionInputInBlock(int currentBlock) throws IOException {
+    public static List<TransactionInput> getTransactionInputInBlock(BitcoinClient client, int currentBlock) throws IOException {
         List<TransactionInput> transactionInputs = new ArrayList<>();
-        List<Transaction> transactions = getTransactionInBlock(currentBlock);
+        List<Transaction> transactions = getTransactionInBlock(client,currentBlock);
         for (Transaction tx :
                 transactions) {
             transactionInputs.addAll(tx.getInputs());
         }
         return transactionInputs;
     }
-    public static List<TransactionOutput> getTransactionOutputInBlock(int currentBlock) throws IOException {
+    public static List<TransactionOutput> getTransactionOutputInBlock(BitcoinClient client, int currentBlock) throws IOException {
         List<TransactionOutput> transactionOutputs = new ArrayList<>();
-        List<Transaction> transactions = getTransactionInBlock(currentBlock);
+        List<Transaction> transactions = getTransactionInBlock(client,currentBlock);
         for (Transaction tx :
                 transactions) {
             transactionOutputs.addAll(tx.getOutputs());
@@ -74,47 +74,47 @@ public class BitcoinUtils {
         }
         return false;
     }
-    public static List<TransactionOutput> getTransactionOutputByAddress(List<TransactionOutput> txOutputs, Address addr) {
+    public static List<TransactionOutput> getTransactionOutputByAddress(NetworkParameters params, List<TransactionOutput> txOutputs, Address address) {
         List<TransactionOutput> txOutputsByAddress = new ArrayList<>();
-        for (TransactionOutput txOut :
+        for (TransactionOutput txOutput :
                 txOutputs) {
             try {
-                if (txOut.getAddressFromP2PKHScript(bitcoinClient.getNetParams()).toString().equals(addr.toString()))
-                    txOutputsByAddress.add(txOut);
+                if (txOutput.getScriptPubKey().getToAddress(params).toString().equals(address.toString()))
+                    txOutputsByAddress.add(txOutput);
             } catch (Exception ignore) { }
         }
         return txOutputsByAddress;
     }
     public static Coin getAmt(List<TransactionOutput> txOutputs) {
         Coin res = Coin.ZERO;
-        for (TransactionOutput txOut :
+        for (TransactionOutput txOutput :
                 txOutputs) {
             try {
-                res = res.add(txOut.getValue());
+                res = res.add(txOutput.getValue());
             } catch (Exception ignore) { }
         }
         return res;
     }
 
-    private static void signTx(Transaction rawTx, List<ECKey> privKeys) {
+    private static void signTx(NetworkParameters params, Transaction rawTx, List<ECKey> privKeys) {
         for (int i = 0; i < rawTx.getInputs().size(); i++) {
-            TransactionInput txInp = rawTx.getInput(i);
+            TransactionInput txInput = rawTx.getInput(i);
             Script scriptSig = ScriptBuilder.createInputScript(rawTx.calculateSignature(
                         i,
                         privKeys.get(i),
-                        ScriptBuilder.createOutputScript(privKeys.get(i).toAddress(bitcoinClient.getNetParams())),
+                        ScriptBuilder.createOutputScript(privKeys.get(i).toAddress(params)),
                         Transaction.SigHash.ALL,
                         false),
                     privKeys.get(i));
-            txInp.setScriptSig(scriptSig);
+            txInput.setScriptSig(scriptSig);
         }
     }
-    private static void canAddChangeOutput(Transaction rawTx, List<ECKey> privKeys, Address changeAddress, Coin feePerKb) {
-        Transaction tmpTx = new Transaction(bitcoinClient.getNetParams(),rawTx.bitcoinSerialize());
+    private static void canAddChangeOutput(NetworkParameters params, Transaction rawTx, List<ECKey> privKeys, Address changeAddress, Coin feePerKb) {
+        Transaction tmpTx = new Transaction(params,rawTx.bitcoinSerialize());
         Coin maxFee = Coin.ZERO;
         TransactionOutput txChangeOutput = tmpTx.addOutput(Coin.ZERO,changeAddress);
         while (true) {
-            signTx(tmpTx,privKeys);
+            signTx(params,tmpTx,privKeys);
             Coin fee = feePerKb.multiply(tmpTx.getMessageSize()).divide(1000L);
             if (fee.isGreaterThan(maxFee)) maxFee = fee;
             else break;
@@ -125,10 +125,10 @@ public class BitcoinUtils {
                 return;
         }
         rawTx.addOutput(txChangeOutput);
-        signTx(rawTx,privKeys);
+        signTx(params,rawTx,privKeys);
     }
-    public static Transaction sendTx(Map<TransactionOutput,ECKey> originalInputs, List<Pair<Address,Coin>> candidates, Address changeAddress, Coin feePerKb) throws InsufficientMoneyException, IOException {
-        Transaction rawTx = new Transaction(bitcoinClient.getNetParams());
+    public static Transaction sendTx(NetworkParameters params, Map<TransactionOutput,ECKey> originalInputs, List<Pair<Address,Coin>> candidates, Address changeAddress, Coin feePerKb) throws InsufficientMoneyException, IOException {
+        Transaction rawTx = new Transaction(params);
 
         for (Pair<Address, Coin> candidate:
              candidates) {
@@ -143,14 +143,14 @@ public class BitcoinUtils {
         for (int i = 0; i < rawTx.getInputs().size(); i++) {
             privKeys.add(originalInputs.get(rawTx.getInput(i).getConnectedOutput()));
         }
-        signTx(rawTx,privKeys);
+        signTx(params,rawTx,privKeys);
 
         Coin fee = feePerKb.multiply(rawTx.getMessageSize()).divide(1000L);
 
         if (rawTx.getInputSum().isLessThan(rawTx.getOutputSum().add(fee)))
             throw new InsufficientMoneyException(rawTx.getOutputSum().add(fee).subtract(rawTx.getInputSum()));
 
-        canAddChangeOutput(rawTx,privKeys,changeAddress,feePerKb);
+        canAddChangeOutput(params,rawTx,privKeys,changeAddress,feePerKb);
 
         for (TransactionInput txInp :
                 rawTx.getInputs()) {
@@ -160,18 +160,18 @@ public class BitcoinUtils {
         bitcoinClient.sendRawTransaction(rawTx);
         return rawTx;
     }
-    public static Transaction sendToAddressesByPrivKey(List<TransactionOutput> unspentTxOutputs, ECKey privKey, List<Pair<Address,Coin>> candidates, Coin feePerKb) throws InsufficientMoneyException, IOException {
+    public static Transaction sendToAddressesByPrivKey(NetworkParameters params, List<TransactionOutput> unspentTxOutputs, ECKey privKey, List<Pair<Address,Coin>> candidates, Coin feePerKb) throws InsufficientMoneyException, IOException {
         Map<TransactionOutput,ECKey> originalInputs = new HashMap<>();
         Coin insufficientMoney = Coin.ZERO;
         for (TransactionOutput utxo :
                 unspentTxOutputs) {
             try {
-                if(utxo.getAddressFromP2PKHScript(bitcoinClient.getNetParams()) == null)
+                if(utxo.getAddressFromP2PKHScript(params) == null)
                     continue;
-                if (!utxo.getAddressFromP2PKHScript(bitcoinClient.getNetParams()).toString().equals(privKey.toAddress(bitcoinClient.getNetParams()).toString()))
+                if (!utxo.getAddressFromP2PKHScript(params).toString().equals(privKey.toAddress(params).toString()))
                     continue;
                 originalInputs.put(utxo,privKey);
-                return sendTx(originalInputs,candidates,privKey.toAddress(bitcoinClient.getNetParams()),feePerKb);
+                return sendTx(params,originalInputs,candidates,privKey.toAddress(params),feePerKb);
             } catch (InsufficientMoneyException e) {
                 insufficientMoney = e.missing;
             } catch (IOException e) {
@@ -190,8 +190,8 @@ public class BitcoinUtils {
         pubkeys.add(serverPubKey);
         return ScriptBuilder.createMultiSigOutputScript(2, pubkeys);
     }
-    public static Address create2of3MultiSigAddress(Script script2of3MultiSigRedeem) {
-        return Address.fromP2SHScript(bitcoinClient.getNetParams(),ScriptBuilder.createP2SHOutputScript(script2of3MultiSigRedeem));
+    public static Address create2of3MultiSigAddress(NetworkParameters params, Script script2of3MultiSigRedeem) {
+        return Address.fromP2SHScript(params,ScriptBuilder.createP2SHOutputScript(script2of3MultiSigRedeem));
     }
     private static Coin estimateFee(Transaction rawTx, Script script2of3MultiSigRedeem, Coin feePerKb) {
         int sz = 0;
@@ -209,8 +209,8 @@ public class BitcoinUtils {
         }
         return feePerKb.multiply(sz).divide(1000L);
     }
-    public static Transaction create2of3MultiSigRawTx(List<TransactionOutput> unspentTxOutputs, Script script2of3MultiSigRedeem, List<Pair<Address,Coin>> candidates, Coin feePerKb) throws InsufficientMoneyException {
-        Transaction rawTx = new Transaction(bitcoinClient.getNetParams());
+    public static Transaction create2of3MultiSigRawTx(NetworkParameters params, List<TransactionOutput> unspentTxOutputs, Script script2of3MultiSigRedeem, List<Pair<Address,Coin>> candidates, Coin feePerKb) throws InsufficientMoneyException {
+        Transaction rawTx = new Transaction(params);
         Coin maxMinNonDustValue = Coin.ZERO;
         for (Pair<Address, Coin> candidate :
                 candidates) {
@@ -220,10 +220,10 @@ public class BitcoinUtils {
         }
         for (TransactionOutput utxo :
                 unspentTxOutputs) {
-            if(utxo.getAddressFromP2SH(bitcoinClient.getNetParams()) == null)
+            if(utxo.getAddressFromP2SH(params) == null)
                 continue;
-            if (!utxo.getAddressFromP2SH(bitcoinClient.getNetParams()).toString().equals(
-                    create2of3MultiSigAddress(script2of3MultiSigRedeem).toString()))
+            if (!utxo.getAddressFromP2SH(params).toString().equals(
+                    create2of3MultiSigAddress(params,script2of3MultiSigRedeem).toString()))
                 continue;
             rawTx.addInput(utxo);
             if (rawTx.getInputSum().isGreaterThan(rawTx.getOutputSum().add(estimateFee(rawTx,script2of3MultiSigRedeem,feePerKb))))
@@ -236,7 +236,7 @@ public class BitcoinUtils {
                 .add(maxMinNonDustValue)))
             rawTx.addOutput(rawTx.getInputSum().subtract(rawTx.getOutputSum()
                     .add(estimateFee(rawTx,script2of3MultiSigRedeem,feePerKb)))
-                    ,create2of3MultiSigAddress(script2of3MultiSigRedeem));
+                    ,create2of3MultiSigAddress(params,script2of3MultiSigRedeem));
         return rawTx;
     }
     public static List<Sha256Hash> create2of3MultiSigRawTxHash(Transaction rawTx, Script script2of3MultiSigRedeem) {
