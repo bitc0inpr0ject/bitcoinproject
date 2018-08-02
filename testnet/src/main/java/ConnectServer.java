@@ -11,6 +11,7 @@ import org.bitcoinj.params.TestNet2Params;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Scanner;
 
 public class ConnectServer {
     public static void main(String[] args){
@@ -61,29 +62,212 @@ public class ConnectServer {
 //                                Coin.valueOf(1000000))),
 //                        Coin.parseCoin("0.001"));
 
-                Transaction tx = BitcoinWalletService.createRawTx(
-                        MongoDbService.getMongoTemplateInstance(),
-                        "2Mtmik5182xAATbKvp9Jg1dM6KCfEGvgnfS",
-                        BitcoinUtils.getBitcoinClientInstance(),
-                        Collections.singletonList(new Pair<>(
-                                Address.fromBase58(params,"ms5fFtefrWVEPZeg8b3LM9ZMmYcM4NuSkh"),
-                                Coin.valueOf(500000))),
-                        Coin.parseCoin("0.001"));
-                List<Sha256Hash> hashes = BitcoinWalletService.createRawTxHashes(
-                        MongoDbService.getMongoTemplateInstance(),
-                        "2Mtmik5182xAATbKvp9Jg1dM6KCfEGvgnfS",
-                        tx);
-                List<TransactionSignature> signatures = BitcoinUtils.create2of3MultiSigTxSig(
-                        hashes,
-                        DumpedPrivateKey.fromBase58(params,"cVJXn1fYezvJRYGphvtvsmE5tyD5WCmKE2d72bJQ7hSYwWK6rPYQ").getKey());
-                BitcoinWalletService.signAndSendTx(
-                        MongoDbService.getMongoTemplateInstance(),
-                        "2Mtmik5182xAATbKvp9Jg1dM6KCfEGvgnfS",
-                        BitcoinUtils.getBitcoinClientInstance(),
-                        tx,
-                        signatures);
+//                Transaction tx = BitcoinWalletService.createRawTx(
+//                        MongoDbService.getMongoTemplateInstance(),
+//                        "2Mtmik5182xAATbKvp9Jg1dM6KCfEGvgnfS",
+//                        BitcoinUtils.getBitcoinClientInstance(),
+//                        Collections.singletonList(new Pair<>(
+//                                Address.fromBase58(params,"ms5fFtefrWVEPZeg8b3LM9ZMmYcM4NuSkh"),
+//                                Coin.valueOf(500000))),
+//                        Coin.parseCoin("0.001"));
+//                List<Sha256Hash> hashes = BitcoinWalletService.createRawTxHashes(
+//                        MongoDbService.getMongoTemplateInstance(),
+//                        "2Mtmik5182xAATbKvp9Jg1dM6KCfEGvgnfS",
+//                        tx);
+//                List<TransactionSignature> signatures = BitcoinUtils.create2of3MultiSigTxSig(
+//                        hashes,
+//                        DumpedPrivateKey.fromBase58(params,"cVJXn1fYezvJRYGphvtvsmE5tyD5WCmKE2d72bJQ7hSYwWK6rPYQ").getKey());
+//                BitcoinWalletService.signAndSendTx(
+//                        MongoDbService.getMongoTemplateInstance(),
+//                        "2Mtmik5182xAATbKvp9Jg1dM6KCfEGvgnfS",
+//                        BitcoinUtils.getBitcoinClientInstance(),
+//                        tx,
+//                        signatures);
+                Scanner scanner = new Scanner(System.in);
+                String s;
+                int i;
+                BitcoinAddress address;
+                BitcoinWallet wallet;
+                ECKey privKey;
+                Address to;
+                Coin amt;
+                Transaction tx;
+                List<Sha256Hash> hashes;
+                List<TransactionSignature> transactionSignatures;
+                while (true) {
+                    System.out.println("Send money");
+                    System.out.println("1. Address(1) or Wallet(2)");
+                    try {
+                        i = Integer.parseInt(scanner.nextLine());
+                        switch (i) {
+                            case 1:
+                                System.out.println("2. Address");
+                                try {
+                                    s = scanner.nextLine();
+                                    address = BitcoinAddressService.load(MongoDbService.getMongoTemplateInstance(),s);
+                                    if (address == null) {
+                                        System.out.println("Error 2.2");
+                                        return;
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    System.out.println("Error 2.1");
+                                    return;
+                                }
+                                System.out.println("3. Private Key");
+                                try {
+                                    s = scanner.nextLine();
+                                    privKey = DumpedPrivateKey.fromBase58(params,s).getKey();
+                                    if (!privKey.toAddress(params).toString().equals(address.getAddress())) {
+                                        System.out.println("Error 3.2");
+                                        return;
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    System.out.println("Error 3.1");
+                                    return;
+                                }
+                                System.out.println("4. Send to");
+                                try {
+                                    s = scanner.nextLine();
+                                    to = Address.fromBase58(params,s);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    System.out.println("Error 4");
+                                    return;
+                                }
+                                System.out.println("Balance: "+Coin.valueOf(address.getBalance()).toFriendlyString());
+                                System.out.println("5. Amount");
+                                try {
+                                    s = scanner.nextLine();
+                                    amt = Coin.parseCoin(s);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    System.out.println("Error 5");
+                                    return;
+                                }
+                                try {
+                                    tx = BitcoinAddressService.sendToAddresses(
+                                            MongoDbService.getMongoTemplateInstance(),
+                                            address.getAddress(),
+                                            BitcoinUtils.getBitcoinClientInstance(),
+                                            Collections.singletonList(new Pair<>(to,amt)),
+                                            Coin.parseCoin("0.003"));
+                                    if (tx == null) {
+                                        System.out.println("Error 6.2");
+                                        return;
+                                    }
+                                    System.out.println(tx);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    System.out.println("Error 6.1");
+                                    return;
+                                }
+                                break;
+                            case 2:
+                                System.out.println("2. Address");
+                                try {
+                                    s = scanner.nextLine();
+                                    wallet = BitcoinWalletService.load(MongoDbService.getMongoTemplateInstance(),s);
+                                    if (wallet == null) {
+                                        System.out.println("Error 2.2");
+                                        return;
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    System.out.println("Error 2.1");
+                                    return;
+                                }
+                                System.out.println("3. Private Key");
+                                try {
+                                    s = scanner.nextLine();
+                                    privKey = DumpedPrivateKey.fromBase58(params,s).getKey();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    System.out.println("Error 3.1");
+                                    return;
+                                }
+                                System.out.println("4. Send to");
+                                try {
+                                    s = scanner.nextLine();
+                                    to = Address.fromBase58(params,s);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    System.out.println("Error 4");
+                                    return;
+                                }
+                                System.out.println("Balance: "+Coin.valueOf(wallet.getBalance()).toFriendlyString());
+                                System.out.println("5. Amount");
+                                try {
+                                    s = scanner.nextLine();
+                                    amt = Coin.parseCoin(s);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    System.out.println("Error 5");
+                                    return;
+                                }
+                                try {
+                                    tx = BitcoinWalletService.createRawTx(
+                                            MongoDbService.getMongoTemplateInstance(),
+                                            wallet.getAddress(),
+                                            BitcoinUtils.getBitcoinClientInstance(),
+                                            Collections.singletonList(new Pair<>(to,amt)),
+                                            Coin.parseCoin("0.003"));
+                                    if (tx == null) {
+                                        System.out.println("Error 6.2");
+                                        return;
+                                    } else System.out.println("Ok 6.2");
+                                    hashes = BitcoinWalletService.createRawTxHashes(
+                                            MongoDbService.getMongoTemplateInstance(),
+                                            wallet.getAddress(),
+                                            tx);
+                                    if (hashes == null) {
+                                        System.out.println("Error 6.3.1");
+                                        return;
+                                    } else if (hashes.size() < 1) {
+                                        System.out.println("Error 6.3.2");
+                                        return;
+                                    } else System.out.println("Ok 6.3");
+                                    transactionSignatures = BitcoinUtils.create2of3MultiSigTxSig(
+                                            hashes,
+                                            privKey);
+                                    if (transactionSignatures == null) {
+                                        System.out.println("Error 6.4.1");
+                                        return;
+                                    } else if (transactionSignatures.size() < 1) {
+                                        System.out.println("Error 6.4.2");
+                                        return;
+                                    } else System.out.println("Ok 6.4");
+                                    tx = BitcoinWalletService.signAndSendTx(
+                                            MongoDbService.getMongoTemplateInstance(),
+                                            wallet.getAddress(),
+                                            BitcoinUtils.getBitcoinClientInstance(),
+                                            tx,
+                                            transactionSignatures);
+                                    if (tx == null) {
+                                        System.out.println("Error 6.5");
+                                        return;
+                                    } else System.out.println("Ok 6.5");
+                                    System.out.println(tx);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    System.out.println("Error 6.1");
+                                    return;
+                                }
+                                break;
+                            default:
+                                System.out.println("Error 1.2");
+                                return;
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        System.out.println("Error 1.1");
+                        return;
+                    }
+                    System.out.println("Done");
+                }
 
-                System.out.println("Done");
+//                System.out.println("Done");
             } catch (Exception e) {
                 e.printStackTrace();
             }

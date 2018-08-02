@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="BookmarkManager">
-    <bookmark url="file://$PROJECT_DIR$/src/main/java/ConnectServer.java" line="92" />
+    <bookmark url="file://$PROJECT_DIR$/src/main/java/ConnectServer.java" line="276" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2e5ff851-81ac-485c-bc27-f4ec25aca8ec" name="Default" comment="" />
@@ -19,41 +19,13 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="BitcoinWallet.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/BitcoinModel/BitcoinWallet.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="98">
-              <caret line="8" column="13" selection-start-line="8" selection-start-column="13" selection-end-line="8" selection-end-column="13" />
-              <folding>
-                <element signature="imports" expanded="true" />
-                <element signature="method#createBitcoinWallet#0;class#BitcoinWallet#0" />
-                <element signature="method#setTxOutputs#0;class#BitcoinWallet#0" />
-                <element signature="method#addTxOutputs#0;class#BitcoinWallet#0" />
-                <element signature="method#removeTxOutputs#0;class#BitcoinWallet#0" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="ConnectServer.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/ConnectServer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="90">
-              <caret line="6" column="24" lean-forward="true" selection-start-line="6" selection-start-column="24" selection-end-line="6" selection-end-column="24" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="BitcoinAddressService.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/BitcoinService/BitcoinAddressService.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="142">
-              <caret line="79" column="36" lean-forward="true" selection-start-line="79" selection-start-column="36" selection-end-line="79" selection-end-column="36" />
+            <state relative-caret-position="261">
+              <caret line="160" column="55" lean-forward="true" selection-start-line="160" selection-start-column="55" selection-end-line="160" selection-end-column="55" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="method#load#0;class#BitcoinAddressService#0" />
-                <element signature="method#save#0;class#BitcoinAddressService#0" />
-                <element signature="method#update#0;class#BitcoinAddressService#0" />
               </folding>
             </state>
           </provider>
@@ -62,43 +34,27 @@
       <file leaf-file-name="BitcoinWalletService.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/BitcoinService/BitcoinWalletService.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="404">
-              <caret line="118" column="44" lean-forward="true" selection-start-line="118" selection-start-column="44" selection-end-line="118" selection-end-column="44" />
+            <state relative-caret-position="151">
+              <caret line="84" column="35" selection-start-line="84" selection-start-column="35" selection-end-line="84" selection-end-column="35" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="method#load#0;class#BitcoinWalletService#0" />
                 <element signature="method#save#0;class#BitcoinWalletService#0" />
                 <element signature="method#createRawTx#0;class#BitcoinWalletService#0" />
-                <element signature="method#createRawTxHashes#0;class#BitcoinWalletService#0" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="MongoDbService.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/BitcoinService/MongoDbService.java">
+      <file leaf-file-name="BitcoinAddress.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/BitcoinModel/BitcoinAddress.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="165">
-              <caret line="11" column="13" selection-start-line="11" selection-start-column="13" selection-end-line="11" selection-end-column="13" />
+            <state relative-caret-position="142">
+              <caret line="12" column="24" selection-start-line="12" selection-start-column="17" selection-end-line="12" selection-end-column="24" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="method#createMongoTemplateInstance#0;class#MongoDbService#0" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="BitcoinTransactionOutput.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/BitcoinModel/BitcoinTransactionOutput.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="241">
-              <caret line="31" column="5" lean-forward="true" selection-start-line="31" selection-start-column="5" selection-end-line="31" selection-end-column="5" />
-              <folding>
-                <element signature="imports" expanded="true" />
-                <element signature="method#createBitcoinTransactionOutput#0;class#BitcoinTransactionOutput#0" />
-                <element signature="method#getTransactionOutput#0;class#BitcoinTransactionOutput#0" />
-                <element signature="method#getTransactionOutputList#0;class#BitcoinTransactionOutput#0" />
-                <element signature="method#equals#0;class#BitcoinTransactionOutput#0" />
+                <element signature="method#createBitcoinAddress#0;class#BitcoinAddress#0" />
+                <element signature="method#setTxOutputs#0;class#BitcoinAddress#0" />
               </folding>
             </state>
           </provider>
@@ -143,6 +99,7 @@
       <find>bTxOutputs</find>
       <find>getaddress</find>
       <find>getAddressFrom</find>
+      <find>Error</find>
     </findStrings>
   </component>
   <component name="IdeDocumentHistory">
@@ -321,7 +278,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="43" y="25" width="1323" height="743" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info anchor="right" id="Palette" order="8" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -403,6 +359,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="120">
           <caret line="8" lean-forward="true" selection-start-line="8" selection-end-line="8" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -417,6 +376,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="585">
           <caret line="39" lean-forward="true" selection-start-line="39" selection-end-line="39" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -466,6 +428,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="420">
           <caret line="28" selection-start-line="28" selection-end-line="28" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -709,18 +674,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/BitcoinModel/BitcoinAddress.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="172">
-          <caret line="51" column="37" selection-start-line="51" selection-start-column="37" selection-end-line="51" selection-end-column="37" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="method#createBitcoinAddress#0;class#BitcoinAddress#0" />
-            <element signature="method#setTxOutputs#0;class#BitcoinAddress#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/BitcoinModel/BitcoinTransactionOutput.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="241">
@@ -788,20 +741,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/BitcoinService/BitcoinWalletService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="404">
-          <caret line="118" column="44" lean-forward="true" selection-start-line="118" selection-start-column="44" selection-end-line="118" selection-end-column="44" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="method#load#0;class#BitcoinWalletService#0" />
-            <element signature="method#save#0;class#BitcoinWalletService#0" />
-            <element signature="method#createRawTx#0;class#BitcoinWalletService#0" />
-            <element signature="method#createRawTxHashes#0;class#BitcoinWalletService#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/BitcoinService/BitcoinAddressService.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="142">
@@ -815,10 +754,38 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/BitcoinService/BitcoinWalletService.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="151">
+          <caret line="84" column="35" selection-start-line="84" selection-start-column="35" selection-end-line="84" selection-end-column="35" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="method#load#0;class#BitcoinWalletService#0" />
+            <element signature="method#save#0;class#BitcoinWalletService#0" />
+            <element signature="method#createRawTx#0;class#BitcoinWalletService#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/BitcoinModel/BitcoinAddress.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="142">
+          <caret line="12" column="24" selection-start-line="12" selection-start-column="17" selection-end-line="12" selection-end-column="24" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="method#createBitcoinAddress#0;class#BitcoinAddress#0" />
+            <element signature="method#setTxOutputs#0;class#BitcoinAddress#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/ConnectServer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="6" column="24" lean-forward="true" selection-start-line="6" selection-start-column="24" selection-end-line="6" selection-end-column="24" />
+        <state relative-caret-position="261">
+          <caret line="160" column="55" lean-forward="true" selection-start-line="160" selection-start-column="55" selection-end-line="160" selection-end-column="55" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
