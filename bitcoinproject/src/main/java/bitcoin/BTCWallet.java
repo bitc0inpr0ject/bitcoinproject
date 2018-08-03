@@ -18,12 +18,14 @@ import java.util.concurrent.ExecutionException;
 public class BTCWallet {
     @Id
     private ObjectId id;
-    //@Field(value="priKey")
-    //private String priKey;
     @Field(value="address")
     private String address;
+
+    public void setuTxOs(List<UTxOOBj> uTxOs) {
+        this.uTxOs = uTxOs;
+    }
+
     @Field(value="txOuts")
-    //private Map<String,Integer> txOuts;
     private List<UTxOOBj> uTxOs=new ArrayList<>();
     @Field(value="balance")
     private Long balance;
@@ -32,14 +34,14 @@ public class BTCWallet {
         super();
         this.address=address.toBase58();
         this.balance= Long.parseLong("0");
-        System.out.println("Contructor 1");
+        //System.out.println("Contructor 1");
         System.out.println(this.balance);
     }
 
     public BTCWallet(){
         super();
         this.balance= Long.parseLong("0");
-        System.out.println("Contructor 2");
+        //System.out.println("Contructor 2");
     }
 
     public BTCWallet(ObjectId id, String address, Map<String,Integer> txOuts, Long balance){
@@ -47,7 +49,7 @@ public class BTCWallet {
         this.id=id;
         this.address=address;
         this.balance=balance;
-        System.out.println("Contructor 3");
+        //System.out.println("Contructor 3");
     }
 
 
@@ -63,6 +65,10 @@ public class BTCWallet {
 
     public ObjectId getId() {
         return id;
+    }
+
+    public List<UTxOOBj> getuTxOList() {
+        return this.uTxOs;
     }
 
     public List<TransactionOutput> getuTxOs() {
@@ -106,37 +112,11 @@ public class BTCWallet {
     public void removeUTxOs(List<TransactionOutput> txOuts){
         for (TransactionOutput txOut :
                 txOuts) {
-            this.uTxOs.remove(App.bitcoinUtils.getUTxOFromTxO(txOut));
+            UTxOOBj uTxOFromTxO = App.bitcoinUtils.getUTxOFromTxO(txOut);
+
+            this.uTxOs.remove(uTxOFromTxO);
+
         }
     }
-    /*public ECKey getPriKey() {
-        ECKey _priKey= ECKey.fromPrivate(this.priKey.getBytes(),true);
-        return _priKey;
-    }
-
-    public List<TransactionOutput> getTxOuts() {
-        List<TransactionOutput> result=new ArrayList<>();
-        for (String txid :
-                this.txOuts.keySet()) {
-            try {
-                TransactionOutput output = App.bitcoinUtils.getClientInstance().getRawTransaction(Sha256Hash.wrap(txid)).getOutput(this.txOuts.get(txid));
-                System.out.println(output);
-                result.add(output);
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-        }
-
-        return result;
-    }*/
-
-    /*public void setTxOuts(List<TransactionOutput> txOuts) {
-        if (this.txOuts==null)
-            this.txOuts=new HashMap<>();
-        for (TransactionOutput txOutput :
-                txOuts) {
-            this.txOuts.put(txOutput.getParentTransaction().getHash().toString(),txOutput.getIndex());
-        }
-    }*/
 
 }

@@ -25,27 +25,25 @@ public class HandleBlockNotify {
         for (BTCWallet wallet :
                 App.btcWallets) {
             address=wallet.getAddress();
+            System.out.println(address);
             for (Transaction tx :
                     txs) {
                 if (tx.isCoinBase())
                     continue;
-                //if (tx.getHash().toString().equals("e9838bc9beb3504dece57494e87d00de39c10f16bf611c55ff1ffa71a1beb143")) {
+                System.out.println(tx);
+                txOutputs = App.bitcoinUtils.getTransactionOutputByAddress(tx.getOutputs(), address);
 
-                    txOutputs = App.bitcoinUtils.getTransactionOutputByAddress(tx.getOutputs(), address);
-                    //System.out.println(txOutputs);
-                    if (txOutputs.size() > 0) {
-                        amount = App.bitcoinUtils.getAmt(txOutputs);
-                        App.walletService.incbalance(wallet, amount.value, txOutputs);
+                if (txOutputs.size() > 0) {
+                    amount = App.bitcoinUtils.getAmt(txOutputs);
+                    App.walletService.incbalance(wallet, amount.value, txOutputs);
 
-                    }
+                }
 
-                    txOutputsFromInputs = App.bitcoinUtils.getTransactionOutputOfInputByAddress(tx.getInputs(), address);
-                    //System.out.println(txOutputsFromInputs);
-                    if (txOutputsFromInputs.size() > 0) {
-                        amount = App.bitcoinUtils.getAmt(txOutputsFromInputs);
-                        App.walletService.decbalance(wallet, amount.value, txOutputsFromInputs);
-                    }
-                //}
+                txOutputsFromInputs = App.bitcoinUtils.getTransactionOutputOfInputByAddress(tx.getInputs(), address);
+                if (txOutputsFromInputs.size() > 0) {
+                    amount = App.bitcoinUtils.getAmt(txOutputsFromInputs);
+                    App.walletService.decbalance(wallet, amount.value, txOutputsFromInputs);
+                }
             }
         }
     }

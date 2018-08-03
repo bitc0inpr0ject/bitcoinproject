@@ -28,4 +28,13 @@ public class UTxOOBj {
     public void setTransactionId(String transactionId) {
         TransactionId = transactionId;
     }
+
+    @Override
+    public boolean equals(Object var1){
+        if (var1 == null) return false;
+        if (var1 == this) return true;
+        if (!(var1 instanceof UTxOOBj)) return false;
+        UTxOOBj otherUTxOOBj = (UTxOOBj)var1;
+        return (this.TransactionId.equals(otherUTxOOBj.TransactionId) && (this.OutputIndex==otherUTxOOBj.OutputIndex));
+    }
 }

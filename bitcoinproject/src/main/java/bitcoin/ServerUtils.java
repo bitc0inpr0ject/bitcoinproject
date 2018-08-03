@@ -59,6 +59,7 @@ public class ServerUtils {
     }
 
     public void BlockNotify(){
+        System.out.println("Block notify");
         HandleBlockNotify.checkBlock(this.block);
         App.showListWallet();
     }

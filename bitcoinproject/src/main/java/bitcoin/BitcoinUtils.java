@@ -3,10 +3,13 @@ package bitcoin;
 import com.msgilligan.bitcoinj.rpc.BitcoinClient;
 import com.msgilligan.jsonrpc.JsonRPCStatusException;
 import org.bitcoinj.core.*;
+import org.bitcoinj.crypto.TransactionSignature;
 import org.bitcoinj.params.MainNetParams;
 import org.bitcoinj.params.RegTestParams;
 import org.bitcoinj.params.TestNet2Params;
 import org.bitcoinj.script.Script;
+import org.bitcoinj.script.ScriptBuilder;
+import org.springframework.data.util.Pair;
 
 import java.io.IOException;
 import java.net.URI;
@@ -107,7 +110,6 @@ public class BitcoinUtils {
     public List<TransactionOutput> getTransactionOutputByAddress(List<TransactionOutput> txOutputs, Address addr) {
         List<TransactionOutput> txOutputsByAddress = new ArrayList<>();
         Address address=null;
-
         for (TransactionOutput txOut :
                 txOutputs) {
             address=null;
@@ -115,8 +117,9 @@ public class BitcoinUtils {
                 address=getAddressFromOutput(txOut);
                 if (address==null)
                     continue;
-                if (address.toString().equals(addr.toString()))
+                if (address.toString().equals(addr.toString())) {
                     txOutputsByAddress.add(txOut);
+                }
             } catch (ScriptException ignore) {
                 System.out.println(ignore);
             }
@@ -148,7 +151,10 @@ public class BitcoinUtils {
                 output = transaction.getOutput(Integer.parseInt(preTx[1]));
                 result.add(output);
             }
-            return this.getTransactionOutputByAddress(result,address);
+
+            List<TransactionOutput> outputList=this.getTransactionOutputByAddress(result,address);
+            System.out.println(outputList);
+            return outputList;
         }catch (Exception ignore){
             System.out.println("Get transaction out of in by add wrong, more: " + ignore.toString());
             return null;
@@ -209,6 +215,92 @@ public class BitcoinUtils {
     public UTxOOBj getUTxOFromTxO(TransactionOutput txO){
         UTxOOBj result=new UTxOOBj(txO.getParentTransaction().getHash().toString(),txO.getIndex());
         return result;
+    }
+
+    //-------------------------------------------------------------------------
+    // NVQHuy's functions
+    //-------------------------------------------------------------------------
+
+    public static Script create2of3MultiSigRedeemScript(ECKey clientPubKey_1, ECKey clientPubKey_2, ECKey serverPubKey) {
+        List<ECKey> pubkeys = new ArrayList<>();
+        pubkeys.add(clientPubKey_1);
+        pubkeys.add(clientPubKey_2);
+        pubkeys.add(serverPubKey);
+        return ScriptBuilder.createMultiSigOutputScript(2, pubkeys);
+    }
+    public static Address create2of3MultiSigAddress(NetworkParameters params, Script script2of3MultiSigRedeem) {
+        return Address.fromP2SHScript(params,ScriptBuilder.createP2SHOutputScript(script2of3MultiSigRedeem));
+    }
+    private static Coin estimateFee(Transaction rawTx, Script script2of3MultiSigRedeem, Coin feePerKb) {
+        int sz = 0;
+        int maxSz = 0;
+        for (TransactionOutput txOutput :
+                rawTx.getOutputs()) {
+            sz += txOutput.getMessageSize();
+            if (txOutput.getMessageSize() > maxSz)
+                maxSz = txOutput.getMessageSize();
+        }
+        sz += maxSz;
+        for (TransactionInput txInput :
+                rawTx.getInputs()) {
+            sz += txInput.getMessageSize() + script2of3MultiSigRedeem.getProgram().length + 100*2;
+        }
+        return feePerKb.multiply(sz).divide(1000L);
+    }
+    public static Transaction create2of3MultiSigRawTx(NetworkParameters params, List<TransactionOutput> unspentTxOutputs, Script script2of3MultiSigRedeem, List<Pair<Address,Coin>> candidates, Coin feePerKb) throws InsufficientMoneyException {
+        Transaction rawTx = new Transaction(params);
+        Coin maxMinNonDustValue = Coin.ZERO;
+        for (Pair<Address, Coin> candidate :
+                candidates) {
+            TransactionOutput txOut = rawTx.addOutput(candidate.getSecond(),candidate.getFirst());
+            if (maxMinNonDustValue.isLessThan(txOut.getMinNonDustValue(feePerKb)))
+                maxMinNonDustValue = txOut.getMinNonDustValue(feePerKb);
+        }
+        for (TransactionOutput utxo :
+                unspentTxOutputs) {
+            if(utxo.getScriptPubKey().getToAddress(params) == null)
+                continue;
+            if (!utxo.getScriptPubKey().getToAddress(params).toString().equals(
+                    create2of3MultiSigAddress(params,script2of3MultiSigRedeem).toString()))
+                continue;
+            rawTx.addInput(utxo);
+            if (rawTx.getInputSum().isGreaterThan(rawTx.getOutputSum().add(estimateFee(rawTx,script2of3MultiSigRedeem,feePerKb))))
+                break;
+        }
+        if (rawTx.getInputSum().isLessThan(rawTx.getOutputSum().add(estimateFee(rawTx,script2of3MultiSigRedeem,feePerKb))))
+            throw new InsufficientMoneyException(rawTx.getOutputSum().add(estimateFee(rawTx,script2of3MultiSigRedeem,feePerKb)).subtract(rawTx.getInputSum()));
+        if (rawTx.getInputSum().isGreaterThan(rawTx.getOutputSum()
+                .add(estimateFee(rawTx,script2of3MultiSigRedeem,feePerKb))
+                .add(maxMinNonDustValue)))
+            rawTx.addOutput(rawTx.getInputSum().subtract(rawTx.getOutputSum()
+                            .add(estimateFee(rawTx,script2of3MultiSigRedeem,feePerKb)))
+                    ,create2of3MultiSigAddress(params,script2of3MultiSigRedeem));
+        return rawTx;
+    }
+    public static List<Sha256Hash> create2of3MultiSigRawTxHash(Transaction rawTx, Script script2of3MultiSigRedeem) {
+        List<Sha256Hash> sha256Hashes = new ArrayList<>();
+        for (int i = 0; i < rawTx.getInputs().size(); i++) {
+            sha256Hashes.add(rawTx.hashForSignature(i, script2of3MultiSigRedeem, Transaction.SigHash.ALL, false));
+        }
+        return sha256Hashes;
+    }
+    public static List<TransactionSignature> create2of3MultiSigTxSig(List<Sha256Hash> rawTxHashes, ECKey privKey) {
+        List<TransactionSignature> txSigs = new ArrayList<>();
+        for (Sha256Hash txHash :
+                rawTxHashes) {
+            txSigs.add(new TransactionSignature(privKey.sign(txHash), Transaction.SigHash.ALL, false));
+        }
+        return txSigs;
+    }
+    public static Transaction signRaw2of3MultiSigTransaction(Transaction rawTx, Script script2of3MultiSigRedeem, List<TransactionSignature> userTxSign, ECKey serverKey) {
+        for (int i = 0; i < rawTx.getInputs().size(); i++) {
+            List<TransactionSignature> txSignatures = new ArrayList<>();
+            txSignatures.add(userTxSign.get(i));
+            txSignatures.add(rawTx.calculateSignature(i,serverKey,script2of3MultiSigRedeem,Transaction.SigHash.ALL,false));
+            rawTx.getInput(i).setScriptSig(ScriptBuilder.createP2SHMultiSigInputScript(txSignatures,script2of3MultiSigRedeem));
+            rawTx.getInput(i).verify();
+        }
+        return rawTx;
     }
 
 }

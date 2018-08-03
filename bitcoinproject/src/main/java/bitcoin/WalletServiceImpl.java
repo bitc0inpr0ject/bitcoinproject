@@ -28,8 +28,8 @@ public class WalletServiceImpl implements WalletService {
     }
 
     @Override
-    public BTCWallet find(BTCWallet wallet) {
-        return walletDAO.find(wallet);
+    public BTCWallet find(Address address) {
+        return walletDAO.find(address);
 
     }
 
