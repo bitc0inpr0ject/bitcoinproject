@@ -30,16 +30,16 @@ public class BitcoinWalletService {
         for (TransactionInput txInput :
                 BitcoinUtils.getTransactionInputInBlock(client,currentBlock)) {
             try {
-                if (db.findOne(Query.query(Criteria.where("txOutputs").elemMatch(
+                BitcoinWallet bWallet = db.findOne(Query.query(Criteria.where("txOutputs").elemMatch(
                         Criteria.where("txHash").is(txInput.getOutpoint().getHash().toString())
                                 .and("index").is(txInput.getOutpoint().getIndex()))),
-                        BitcoinWallet.class) == null) continue;
+                        BitcoinWallet.class);
+                if (bWallet == null) continue;
                 BitcoinTransactionOutput bTxOutput = BitcoinTransactionOutput.createBitcoinTransactionOutput(client,
                         txInput.getOutpoint().getHash().toString(),
                         txInput.getOutpoint().getIndex());
-                BitcoinWallet bAddress = db.findOne(Query.query(Criteria.where("address").is(bTxOutput.getAddress())),BitcoinWallet.class);
-                bAddress.removeTxOutputs(Collections.singletonList(bTxOutput));
-                save(db,bAddress);
+                bWallet.removeTxOutputs(Collections.singletonList(bTxOutput));
+                save(db,bWallet);
             } catch (Exception ignore) { }
         }
         if (confirmations < 1) return;
@@ -47,9 +47,10 @@ public class BitcoinWalletService {
                 BitcoinUtils.getTransactionOutputInBlock(client,currentBlock-confirmations+1)) {
             try {
                 if (txOutput.getScriptPubKey().getToAddress(params) == null) continue;
-                if (db.findOne(Query.query(Criteria.where("address").is(
+                BitcoinWallet bWallet = db.findOne(Query.query(Criteria.where("address").is(
                         txOutput.getScriptPubKey().getToAddress(params).toString())),
-                        BitcoinWallet.class) == null) continue;
+                        BitcoinWallet.class);
+                if (bWallet == null) continue;
                 if (db.findOne(Query.query(Criteria.where("txOutputs").elemMatch(
                         Criteria.where("txHash").is(txOutput.getParentTransaction().getHashAsString())
                                 .and("index").is(txOutput.getIndex()))),
@@ -57,9 +58,8 @@ public class BitcoinWalletService {
                 BitcoinTransactionOutput bTxOutput = BitcoinTransactionOutput.createBitcoinTransactionOutput(client,
                         txOutput.getParentTransaction().getHashAsString(),
                         txOutput.getIndex());
-                BitcoinWallet bAddress = db.findOne(Query.query(Criteria.where("address").is(bTxOutput.getAddress())),BitcoinWallet.class);
-                bAddress.addTxOutputs(Collections.singletonList(bTxOutput));
-                save(db,bAddress);
+                bWallet.addTxOutputs(Collections.singletonList(bTxOutput));
+                save(db,bWallet);
             } catch (Exception ignore) { }
         }
     }

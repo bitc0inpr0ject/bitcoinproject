@@ -29,14 +29,14 @@ public class BitcoinAddressService {
         for (TransactionInput txInput :
                 BitcoinUtils.getTransactionInputInBlock(client,currentBlock)) {
             try {
-                if (db.findOne(Query.query(Criteria.where("txOutputs").elemMatch(
+                BitcoinAddress bAddress = db.findOne(Query.query(Criteria.where("txOutputs").elemMatch(
                         Criteria.where("txHash").is(txInput.getOutpoint().getHash().toString())
                                 .and("index").is(txInput.getOutpoint().getIndex()))),
-                        BitcoinAddress.class) == null) continue;
+                        BitcoinAddress.class);
+                if (bAddress == null) continue;
                 BitcoinTransactionOutput bTxOutput = BitcoinTransactionOutput.createBitcoinTransactionOutput(client,
                         txInput.getOutpoint().getHash().toString(),
                         txInput.getOutpoint().getIndex());
-                BitcoinAddress bAddress = db.findOne(Query.query(Criteria.where("address").is(bTxOutput.getAddress())),BitcoinAddress.class);
                 bAddress.removeTxOutputs(Collections.singletonList(bTxOutput));
                 save(db,bAddress);
             } catch (Exception ignore) { }
@@ -46,9 +46,10 @@ public class BitcoinAddressService {
                 BitcoinUtils.getTransactionOutputInBlock(client,currentBlock-confirmations+1)) {
             try {
                 if (txOutput.getScriptPubKey().getToAddress(params) == null) continue;
-                if (db.findOne(Query.query(Criteria.where("address").is(
+                BitcoinAddress bAddress = db.findOne(Query.query(Criteria.where("address").is(
                         txOutput.getScriptPubKey().getToAddress(params).toString())),
-                        BitcoinAddress.class) == null) continue;
+                        BitcoinAddress.class);
+                if (bAddress == null) continue;
                 if (db.findOne(Query.query(Criteria.where("txOutputs").elemMatch(
                         Criteria.where("txHash").is(txOutput.getParentTransaction().getHashAsString())
                                 .and("index").is(txOutput.getIndex()))),
@@ -56,7 +57,6 @@ public class BitcoinAddressService {
                 BitcoinTransactionOutput bTxOutput = BitcoinTransactionOutput.createBitcoinTransactionOutput(client,
                         txOutput.getParentTransaction().getHashAsString(),
                         txOutput.getIndex());
-                BitcoinAddress bAddress = db.findOne(Query.query(Criteria.where("address").is(bTxOutput.getAddress())),BitcoinAddress.class);
                 bAddress.addTxOutputs(Collections.singletonList(bTxOutput));
                 save(db,bAddress);
             } catch (Exception ignore) { }

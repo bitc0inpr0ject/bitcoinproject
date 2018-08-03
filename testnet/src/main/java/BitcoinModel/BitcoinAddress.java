@@ -59,20 +59,20 @@ public class BitcoinAddress {
         }
     }
     public void removeTxOutputs(List<BitcoinTransactionOutput> bTxOutputs) {
-        for (BitcoinTransactionOutput bTxOutput :
-                bTxOutputs) {
-            if (bTxOutput == null) continue;
-            if (!bTxOutput.getAddress().equals(this.address)) continue;
-            for (BitcoinTransactionOutput txOutput :
-                    this.txOutputs) {
-                if (bTxOutput.equals(txOutput)) this.txOutputs.remove(txOutput);
-            }
-        }
-        this.balance = 0;
-        for (BitcoinTransactionOutput bTxOutput :
+        List<BitcoinTransactionOutput> list = new ArrayList<>();
+        for (BitcoinTransactionOutput txOutput :
                 this.txOutputs) {
-            this.balance += bTxOutput.getValue();
+            boolean chk = true;
+            for (BitcoinTransactionOutput bTxOutput :
+                    bTxOutputs) {
+                if (txOutput.equals(bTxOutput)) {
+                    chk = false;
+                    break;
+                }
+            }
+            if (chk) list.add(txOutput);
         }
+        this.setTxOutputs(list);
     }
 
 }
