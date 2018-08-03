@@ -70,7 +70,7 @@ public class BitcoinAddressService {
             if (bAddress == null) return null;
             List<TransactionOutput> txOutputs = BitcoinTransactionOutput.getTransactionOutputList(client,bAddress.getTxOutputs());
             Transaction tx = BitcoinUtils.sendToAddressesByPrivKey(
-                    params,
+                    client,
                     txOutputs,
                     DumpedPrivateKey.fromBase58(params,bAddress.getPrivKey()).getKey(),
                     candidates, feePerKb);

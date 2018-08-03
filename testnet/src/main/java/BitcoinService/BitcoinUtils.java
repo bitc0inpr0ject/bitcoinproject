@@ -132,7 +132,8 @@ public class BitcoinUtils {
         rawTx.addOutput(txChangeOutput);
         signTx(params,rawTx,privKeys);
     }
-    public static Transaction sendTx(NetworkParameters params, Map<TransactionOutput,ECKey> originalInputs, List<Pair<Address,Coin>> candidates, Address changeAddress, Coin feePerKb) throws InsufficientMoneyException, IOException {
+    public static Transaction sendTx(BitcoinClient client, Map<TransactionOutput,ECKey> originalInputs, List<Pair<Address,Coin>> candidates, Address changeAddress, Coin feePerKb) throws InsufficientMoneyException, IOException {
+        NetworkParameters params = client.getNetParams();
         Transaction rawTx = new Transaction(params);
 
         for (Pair<Address, Coin> candidate:
@@ -162,10 +163,11 @@ public class BitcoinUtils {
             txInp.verify();
         }
 
-        bitcoinClient.sendRawTransaction(rawTx);
+        client.sendRawTransaction(rawTx);
         return rawTx;
     }
-    public static Transaction sendToAddressesByPrivKey(NetworkParameters params, List<TransactionOutput> unspentTxOutputs, ECKey privKey, List<Pair<Address,Coin>> candidates, Coin feePerKb) throws InsufficientMoneyException, IOException {
+    public static Transaction sendToAddressesByPrivKey(BitcoinClient client, List<TransactionOutput> unspentTxOutputs, ECKey privKey, List<Pair<Address,Coin>> candidates, Coin feePerKb) throws InsufficientMoneyException, IOException {
+        NetworkParameters params = client.getNetParams();
         Map<TransactionOutput,ECKey> originalInputs = new HashMap<>();
         Coin insufficientMoney = Coin.ZERO;
         for (TransactionOutput utxo :
@@ -176,7 +178,7 @@ public class BitcoinUtils {
                 if (!utxo.getScriptPubKey().getToAddress(params).toString().equals(privKey.toAddress(params).toString()))
                     continue;
                 originalInputs.put(utxo,privKey);
-                return sendTx(params,originalInputs,candidates,privKey.toAddress(params),feePerKb);
+                return sendTx(client,originalInputs,candidates,privKey.toAddress(params),feePerKb);
             } catch (InsufficientMoneyException e) {
                 insufficientMoney = e.missing;
             } catch (IOException e) {
