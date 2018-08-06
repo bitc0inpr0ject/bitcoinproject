@@ -15,6 +15,28 @@ public class BitcoinWallet {
 
     private BitcoinWallet() { }
 
+    /**
+     * Create the bitcoin wallet.
+     * The only method to create the bitcoin wallet.
+     * This is the 2-of-3 multisig.
+     * To export public key from ECKey, we can use method: ECKey.getPubKey(): byte[]
+     * To import public key, we can use function: ECKey.fromPublicOnly(byte[] pub): ECKey
+     * To export private key from ECKey, we can use method:
+     *      ECKey.getPrivateKeyEncoded(NetworkParameters params).toBase58(): String
+     *      with:   NetworkParameters params: the network parameter (MainNet, TestNet, ...)
+     * To import private key, we can use function:
+     *      DumpedPrivateKey.fromBase58(NetworkParameters params, String base58): ECKey
+     *      with:   NetworkParameters params: the network parameter (MainNet, TestNet, ...)
+     *              String base58: the private key in String format
+     * IMPORTANT:
+     * The bitcoin wallet created from (A,B,C) is different from the one created from (B,A,C).
+     * So remember the order of the keys.
+     * @param params            the network parameter (MainNet, TestNet, ...)
+     * @param clientPubKey_1    the first client public key
+     * @param clientPubKey_2    the second client public key
+     * @param serverPrivKey     the server private key
+     * @return
+     */
     public static BitcoinWallet createBitcoinWallet(NetworkParameters params, ECKey clientPubKey_1, ECKey clientPubKey_2, ECKey serverPrivKey) {
         try {
             String privKey = serverPrivKey.getPrivateKeyEncoded(params).toString();
@@ -30,12 +52,26 @@ public class BitcoinWallet {
         }
     }
 
+    /**
+     * Get the server private key of the bitcoin wallet
+     * @return  the server private key
+     */
     public String getServerPrivKey() {
         return serverPrivKey;
     }
+
+    /**
+     * Get the address of the bitcoin wallet
+     * @return  the address
+     */
     public String getAddress() {
         return address;
     }
+
+    /**
+     * Get the redeem script of the bitcoin wallet
+     * @return  the redeem script
+     */
     public Script getRedeemScript() {
         return new Script(Base64.getDecoder().decode(redeemScript));
     }
