@@ -13,5 +13,7 @@ public interface WalletService {
     public List<BTCWallet> findAll();
     public void incbalance(BTCWallet wallet, Long value, List<TransactionOutput> outputs);
     public void decbalance(BTCWallet wallet, Long value, List<TransactionOutput> outputs);
+    public void incTxOut(BTCWallet wallet, List<TransactionOutput> outputs);
+    public void decTxOut(BTCWallet wallet, List<TransactionOutput> outputs);
     //public void
 }

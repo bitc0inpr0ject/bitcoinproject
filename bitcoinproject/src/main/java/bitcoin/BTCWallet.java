@@ -20,11 +20,6 @@ public class BTCWallet {
     private ObjectId id;
     @Field(value="address")
     private String address;
-
-    public void setuTxOs(List<UTxOOBj> uTxOs) {
-        this.uTxOs = uTxOs;
-    }
-
     @Field(value="txOuts")
     private List<UTxOOBj> uTxOs=new ArrayList<>();
     @Field(value="balance")
@@ -60,7 +55,7 @@ public class BTCWallet {
     }
 
     public Long getBalance() {
-        return this.balance;
+        return App.bitcoinUtils.getAmt(this.getAlluTxOs()).value;
     }
 
     public ObjectId getId() {
@@ -75,12 +70,26 @@ public class BTCWallet {
         List<TransactionOutput> txOuts=new ArrayList<>();
         for (UTxOOBj uTxOOBj:
              this.uTxOs) {
+            if (!uTxOOBj.isSpending())
+            txOuts.add(App.bitcoinUtils.getTxOFromUTxO(uTxOOBj));
+        }
+        return txOuts;
+    }
+
+    public List<TransactionOutput> getAlluTxOs() {
+        List<TransactionOutput> txOuts=new ArrayList<>();
+        for (UTxOOBj uTxOOBj:
+                this.uTxOs) {
             txOuts.add(App.bitcoinUtils.getTxOFromUTxO(uTxOOBj));
         }
         return txOuts;
     }
 
     //Setters________________________________
+
+    public void setuTxOs(List<UTxOOBj> uTxOs) {
+        this.uTxOs = uTxOs;
+    }
 
     public void setId(ObjectId id) {
         this.id = id;
@@ -109,13 +118,31 @@ public class BTCWallet {
         }
     }
 
+    /**
+     * Given list TransactionOutput and remove it
+     * @param txOuts
+     */
     public void removeUTxOs(List<TransactionOutput> txOuts){
         for (TransactionOutput txOut :
                 txOuts) {
             UTxOOBj uTxOFromTxO = App.bitcoinUtils.getUTxOFromTxO(txOut);
-
+            uTxOFromTxO.setSpending(true);
             this.uTxOs.remove(uTxOFromTxO);
+            //System.out.println(uTxOFromTxO.getTransactionId()+"_"+uTxOFromTxO.getOutputIndex()+"_"+uTxOFromTxO.isSpending());
+        }
+    }
 
+    /**
+     * Given list TransactionOutput and update it's status to "Spending"
+     * @param txOuts
+     */
+    public void setStatus(List<TransactionOutput> txOuts){
+        for (TransactionOutput txOut :
+                txOuts) {
+            UTxOOBj uTxOFromTxO = App.bitcoinUtils.getUTxOFromTxO(txOut);
+            this.uTxOs.remove(uTxOFromTxO);
+            uTxOFromTxO.setSpending(true);
+            this.uTxOs.add(uTxOFromTxO);
         }
     }
 

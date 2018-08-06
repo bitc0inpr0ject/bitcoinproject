@@ -31,6 +31,10 @@ public class WalletDAOImpl implements WalletDAO{
         mongoTemplate.save(wallet);
     }
 
+    /**
+     * @param wallet BTCWallet Object
+     * @param uTxOOBj
+     */
     @Override
     public void removeUtxo(BTCWallet wallet, UTxOOBj uTxOOBj) {
         Query query = new Query();

@@ -52,6 +52,17 @@ public class WalletServiceImpl implements WalletService {
         walletDAO.update(wallet);
     }
 
+    @Override
+    public void incTxOut(BTCWallet wallet, List<TransactionOutput> outputs) {
+        wallet.setUTxOs(outputs);
+        walletDAO.update(wallet);
+    }
+
+    @Override
+    public void decTxOut(BTCWallet wallet, List<TransactionOutput> outputs) {
+        wallet.removeUTxOs(outputs);
+        walletDAO.update(wallet);
+    }
 
 
 }

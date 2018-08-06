@@ -11,6 +11,7 @@ import org.springframework.data.util.Pair;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class App {
     public static List<BTCWallet> btcWallets;
@@ -33,9 +34,8 @@ public class App {
         //btcWallets.add();
         //btcWallets.add(newBTCWallet());
 
-        btcWallets=walletService.findAll();
-        //btcWallets.get(0)
-        //showListWallet();
+        //btcWallets=walletService.findAll();
+
 
         Thread GetNotify = new Thread(new Runnable() {
             public void run()
@@ -69,12 +69,13 @@ public class App {
         if (bitcoinWallet != null) {
             System.out.println(bitcoinWallet.getAddress(params));
             BTCWallet btcWallet=walletService.find(bitcoinWallet.getAddress(params));
+            btcWallets.add(btcWallet);
             List<TransactionOutput> transactionOutputs = btcWallet.getuTxOs();
             try {
                 Transaction tx = bitcoinWallet.createRawTx(
                         params,
                         transactionOutputs,
-                        Collections.singletonList(Pair.of(Address.fromBase58(params, "ms5fFtefrWVEPZeg8b3LM9ZMmYcM4NuSkh"), Coin.parseCoin("0.05"))),
+                        Collections.singletonList(Pair.of(Address.fromBase58(params, "ms5fFtefrWVEPZeg8b3LM9ZMmYcM4NuSkh"), Coin.parseCoin("0.01"))),
                         Coin.parseCoin("0.003"));
                 System.out.println(tx);
                 List<Sha256Hash> hashes = bitcoinWallet.createRawTxHashes(tx);
@@ -88,8 +89,9 @@ public class App {
                             outputs) {
                         System.out.println(txOut);
                     }
-                    btcWallet.removeUTxOs(outputs);
+                    btcWallet.setStatus(outputs);
                     walletService.update(btcWallet);
+                    showListWallet();
                 }
             } catch (InsufficientMoneyException e) {
                 e.printStackTrace();
@@ -119,7 +121,15 @@ public class App {
                     wallet.getuTxOs()) {
                 System.out.println(txOut);
             }
+            System.out.println("Wallet UTxOs: ");
+            for (UTxOOBj txOut :
+                    wallet.getuTxOList()) {
+                System.out.println(txOut.getTransactionId()+"_"+txOut.getOutputIndex()+"_"+txOut.isSpending());
+            }
             System.out.println("------------------------");
         }
     }
+
+
+
 }

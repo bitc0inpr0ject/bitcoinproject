@@ -16,6 +16,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 
 public class BitcoinUtils {
@@ -25,6 +26,9 @@ public class BitcoinUtils {
     private BitcoinClient bitcoinClient;
     private NetworkParameters networkParameters;
 
+    /**
+     * @return BitcoinClient Object
+     */
     public BitcoinClient getClientInstance() {
         if (this.bitcoinClient == null) {
             try {
@@ -46,6 +50,13 @@ public class BitcoinUtils {
         return this.networkParameters;
     }
 
+    /**
+     * Generate BitcoinClient
+     * @param network "testnet", "mainnet", "regtest"
+     * @param server Inet4address and port, i.e. "http://192.168.1.38:18332"
+     * @param rpcUsername rpcuser in bitcoin.conf (in full node)
+     * @param rpcPassword rpcpassword in bitcoin.conf (in full node)
+     */
     public void Generator(String network, String server, String rpcUsername, String rpcPassword) {
         this.ServerAddress = server;
         this.RpcUsername = rpcUsername;
@@ -88,6 +99,12 @@ public class BitcoinUtils {
         }
     }*/
 
+    /**
+     * Get all transaction in block by block index
+     * @param currentBlock block index
+     * @return List of Transaction in block
+     * @throws ExecutionException
+     */
     public List<Transaction> getTransactionInBlock(int currentBlock) throws ExecutionException {
         while (true) {
             ExecutorService executor = Executors.newCachedThreadPool();
@@ -107,6 +124,12 @@ public class BitcoinUtils {
         }
     }
 
+    /**
+     * Given list transaction txOutputs and an address addr, return list transaction in txOutputs belong to addr
+     * @param txOutputs list transaction
+     * @param addr address
+     * @return list transaction in txOutputs belong to addr
+     */
     public List<TransactionOutput> getTransactionOutputByAddress(List<TransactionOutput> txOutputs, Address addr) {
         List<TransactionOutput> txOutputsByAddress = new ArrayList<>();
         Address address=null;
@@ -127,6 +150,11 @@ public class BitcoinUtils {
         return txOutputsByAddress;
     }
 
+    /**
+     * Given list TransactionOutput and get this amount
+     * @param txOutputs list TransactionOutput
+     * @return this amount
+     */
     public Coin getAmt(List<TransactionOutput> txOutputs) {
         Coin res = Coin.ZERO;
         for (TransactionOutput txOut :
@@ -138,6 +166,11 @@ public class BitcoinUtils {
         return res;
     }
 
+    /**
+     * @param txInputs List of TransactionInput
+     * @param address Address
+     * @return
+     */
     public List<TransactionOutput> getTransactionOutputOfInputByAddress(List<TransactionInput> txInputs, Address address){
 
         String[] preTx = new String[2];
@@ -160,6 +193,47 @@ public class BitcoinUtils {
             return null;
         }
     }
+
+    /**
+     *
+     * @param txInputs List TransactionInput
+     * @return List TransactionOutput
+     */
+    //new
+    public List<TransactionOutput> getTransactionOutputOfInputs(List<TransactionInput> txInputs){
+
+        String[] preTx = new String[2];
+        List<TransactionOutput> result=new ArrayList<>();
+        try {
+            for (TransactionInput txInput :
+                    txInputs) {
+                preTx = txInput.getOutpoint().toString().split(":");
+                TransactionOutput output;
+                Transaction transaction=this.bitcoinClient.getRawTransaction(Sha256Hash.wrap(preTx[0]));
+                output = transaction.getOutput(Integer.parseInt(preTx[1]));
+                result.add(output);
+            }
+            return result;
+        }catch (Exception ignore){
+            System.out.println("Get transaction out of in by add wrong, more: " + ignore.toString());
+            return null;
+        }
+    }
+
+    public void Clustering(Map<Address,List<TransactionOutput>> wallet, List<TransactionOutput> outputs){
+        Address address;
+        List<TransactionOutput> valueOutput;
+        for (TransactionOutput txOut :
+                outputs) {
+            address=this.getAddressFromOutput(txOut);
+            valueOutput=wallet.get(address);
+            if (valueOutput!=null){
+                valueOutput.add(txOut);
+            }
+        }
+    }
+
+    //
 
     public Address newAddress(){
         try {
@@ -192,7 +266,7 @@ public class BitcoinUtils {
                 //buf.append(" to multisig");
                 System.out.println("To Multisig "+txOut.toString());
             } else {
-                System.out.println(" (unknown type)");
+                //System.out.println(" (unknown type)");
             }
         }else {
             address=txOut.getScriptPubKey().getToAddress(this.networkParameters);
@@ -213,9 +287,11 @@ public class BitcoinUtils {
     }
 
     public UTxOOBj getUTxOFromTxO(TransactionOutput txO){
-        UTxOOBj result=new UTxOOBj(txO.getParentTransaction().getHash().toString(),txO.getIndex());
+        UTxOOBj result=new UTxOOBj(txO.getParentTransaction().getHash().toString(),txO.getIndex(),false);
         return result;
     }
+
+
 
     //-------------------------------------------------------------------------
     // NVQHuy's functions

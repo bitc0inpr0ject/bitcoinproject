@@ -9,6 +9,7 @@ import java.net.Socket;
 
 public class ServerUtils {
     private int block;
+
     public void Generator() {
         ServerSocket echoServer = null;
         String line;
@@ -44,7 +45,6 @@ public class ServerUtils {
                             System.out.println(block);
                             Thread t=new Thread(this::BlockNotify);
                             t.start();
-//                            BlockNotify();
                         }
                     }
                     else
@@ -60,7 +60,7 @@ public class ServerUtils {
 
     public void BlockNotify(){
         System.out.println("Block notify");
-        HandleBlockNotify.checkBlock(this.block);
+        HandleBlockNotify.newcheckBlock(this.block);
         App.showListWallet();
     }
 
