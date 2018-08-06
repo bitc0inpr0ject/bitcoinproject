@@ -35,7 +35,7 @@ public class BitcoinWallet {
      * @param clientPubKey_1    the first client public key
      * @param clientPubKey_2    the second client public key
      * @param serverPrivKey     the server private key
-     * @return
+     * @return                  the bitcoin wallet object
      */
     public static BitcoinWallet createBitcoinWallet(NetworkParameters params, ECKey clientPubKey_1, ECKey clientPubKey_2, ECKey serverPrivKey) {
         try {
