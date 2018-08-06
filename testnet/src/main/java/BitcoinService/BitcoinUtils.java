@@ -75,7 +75,9 @@ public class BitcoinUtils {
                 if (txInp.getOutpoint().getHash().toString().equals(txHash)
                         && txInp.getOutpoint().getIndex() == index)
                     return true;
-            } catch (Exception ignore) { }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return false;
     }
@@ -86,7 +88,9 @@ public class BitcoinUtils {
             try {
                 if (txOutput.getScriptPubKey().getToAddress(params).toString().equals(address.toString()))
                     txOutputsByAddress.add(txOutput);
-            } catch (Exception ignore) { }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return txOutputsByAddress;
     }
@@ -96,7 +100,9 @@ public class BitcoinUtils {
                 txOutputs) {
             try {
                 res = res.add(txOutput.getValue());
-            } catch (Exception ignore) { }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return res;
     }
