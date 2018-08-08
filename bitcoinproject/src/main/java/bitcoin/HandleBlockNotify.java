@@ -7,45 +7,10 @@ import java.util.concurrent.ExecutionException;
 
 public class HandleBlockNotify {
 
-    public static void checkBlock(int block){
-        List<TransactionOutput> txOutputs;
-        List<TransactionOutput> txOutputsFromInputs;
-        List<Transaction> txs;
-        Address address;
-        Coin amount;
-        try {
-            txs = App.bitcoinUtils.getTransactionInBlock(block);
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-            return;
-        }
-        for (BTCWallet wallet :
-                App.btcWallets) {
-            address=wallet.getAddress();
-            System.out.println(address);
-            for (Transaction tx :
-                    txs) {
-                if (tx.isCoinBase())
-                    continue;
-                System.out.println(tx);
-                txOutputs = App.bitcoinUtils.getTransactionOutputByAddress(tx.getOutputs(), address);
-
-                if (txOutputs.size() > 0) {
-                    amount = App.bitcoinUtils.getAmt(txOutputs);
-                    App.walletService.incbalance(wallet, amount.value, txOutputs);
-
-                }
-
-                txOutputsFromInputs = App.bitcoinUtils.getTransactionOutputOfInputByAddress(tx.getInputs(), address);
-                if (txOutputsFromInputs.size() > 0) {
-                    amount = App.bitcoinUtils.getAmt(txOutputsFromInputs);
-                    App.walletService.decbalance(wallet, amount.value, txOutputsFromInputs);
-                }
-            }
-        }
-    }
-
     /**
+     * When receiving a new block, this function filters all transaction input and output,
+     * with each input and ouput transaction, evaluating the address in it and finding in the Map Object
+     * that contains the tracking address, if found then update this Map's value
      * @param block block index of block
      */
     //-------------------------

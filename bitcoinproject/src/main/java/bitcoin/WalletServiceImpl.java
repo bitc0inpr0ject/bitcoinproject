@@ -27,37 +27,40 @@ public class WalletServiceImpl implements WalletService {
         walletDAO.delete(wallet);
     }
 
+    /**
+     * @param address Address
+     * @return BTCWallet Object, which is contained in DB, has Address's value is param address
+     */
     @Override
     public BTCWallet find(Address address) {
         return walletDAO.find(address);
 
     }
 
+    /**
+     * @return All of BTCWallet Object which is contained in DB.
+     */
     @Override
     public List<BTCWallet> findAll() {
         return walletDAO.findAll();
     }
 
-    @Override
-    public void incbalance(BTCWallet wallet, Long value, List<TransactionOutput> outputs) {
-        wallet.incBalance(value);
-        wallet.setUTxOs(outputs);
-        walletDAO.update(wallet);
-    }
-
-    @Override
-    public void decbalance(BTCWallet wallet, Long value, List<TransactionOutput> outputs) {
-        wallet.decBalance(value);
-        wallet.removeUTxOs(outputs);
-        walletDAO.update(wallet);
-    }
-
+    /**
+     * Adding List TransactionOutput outputs to wallet TransactionOutput
+     * @param wallet BTCWallet Object
+     * @param outputs Containing list transaction output
+     */
     @Override
     public void incTxOut(BTCWallet wallet, List<TransactionOutput> outputs) {
         wallet.setUTxOs(outputs);
         walletDAO.update(wallet);
     }
 
+    /**
+     * Removing List TransactionOutput outputs in wallet TransactionOutput
+     * @param wallet BTCWallet Object
+     * @param outputs Containing list transaction output
+     */
     @Override
     public void decTxOut(BTCWallet wallet, List<TransactionOutput> outputs) {
         wallet.removeUTxOs(outputs);

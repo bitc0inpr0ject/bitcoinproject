@@ -80,24 +80,6 @@ public class BitcoinUtils {
         this.bitcoinClient = this.getClientInstance();
     }
 
-    /*public Transaction getTransaction(Sha256Hash hash) throws ExecutionException {
-        while (true) {
-            ExecutorService executor = Executors.newCachedThreadPool();
-            Callable<Transaction> task = () -> this.getClientInstance().getRawTransaction(hash);
-            Future<Transaction> future = executor.submit(task);
-            try {
-                return future.get(5, TimeUnit.SECONDS);
-            } catch (TimeoutException | InterruptedException ex) {
-                System.out.println("can not get transaction detail, retrying...");
-                ex.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-                throw e;
-            } finally {
-                future.cancel(true);
-            }
-        }
-    }*/
 
     /**
      * Get all transaction in block by block index
@@ -220,6 +202,11 @@ public class BitcoinUtils {
         }
     }
 
+    /**
+     * @param wallet Map<Address,List<TransactionOutput>> with Address is contained in DB,
+     *               List<TransactionOutput> will contains all transaction belong to Address in param outputs
+     * @param outputs List transactionOutput need to filter.
+     */
     public void Clustering(Map<Address,List<TransactionOutput>> wallet, List<TransactionOutput> outputs){
         Address address;
         List<TransactionOutput> valueOutput;
@@ -255,6 +242,11 @@ public class BitcoinUtils {
         }
     }
 
+    /**
+     * Return an address in the TransactionOuput
+     * @param txOut TransactionOuput
+     * @return Address
+     */
     public Address getAddressFromOutput(TransactionOutput txOut){
         Address address=null;
         Script script=txOut.getScriptPubKey();
@@ -274,6 +266,11 @@ public class BitcoinUtils {
         return address;
     }
 
+    /**
+     * Convert from UTxOOBj Object to TransactionOutput Object
+     * @param uTxOOBj
+     * @return
+     */
     public TransactionOutput getTxOFromUTxO(UTxOOBj uTxOOBj){
         try {
             Transaction rawTransaction = this.bitcoinClient.getRawTransaction(Sha256Hash.wrap(uTxOOBj.getTransactionId()));
@@ -297,6 +294,21 @@ public class BitcoinUtils {
     // NVQHuy's functions
     //-------------------------------------------------------------------------
 
+    /**
+     * Return the redeem script which is created from 2 client public keys and 1 server public key.
+     * This is the 2-of-3 multisig.
+     * Use at the server side.
+     * Use the redeem script to create the multisig address and signature script, estimate the fee.
+     * To export public key from ECKey, we can use method: ECKey.getPubKey(): byte[]
+     * To import public key, we can use function: ECKey.fromPublicOnly(byte[] pub): ECKey
+     * IMPORTANT:
+     * The script created from (A,B,C) is different from the one created from (B,A,C).
+     * So remember the order of the public keys.
+     * @param clientPubKey_1    the first client public key
+     * @param clientPubKey_2    the second client public key
+     * @param serverPubKey      the server public key
+     * @return                  the redeem script created from 3 public keys
+     */
     public static Script create2of3MultiSigRedeemScript(ECKey clientPubKey_1, ECKey clientPubKey_2, ECKey serverPubKey) {
         List<ECKey> pubkeys = new ArrayList<>();
         pubkeys.add(clientPubKey_1);
@@ -304,6 +316,16 @@ public class BitcoinUtils {
         pubkeys.add(serverPubKey);
         return ScriptBuilder.createMultiSigOutputScript(2, pubkeys);
     }
+
+    /**
+     * Return the address which is created from the redeem script.
+     * This is the 2-of-3 multisig.
+     * Use at the server side.
+     * Use the address to be able to receive coins from other addresses.
+     * @param params                    the network parameter (MainNet, TestNet, ...)
+     * @param script2of3MultiSigRedeem  the redeem script
+     * @return                          the address created from the redeem script
+     */
     public static Address create2of3MultiSigAddress(NetworkParameters params, Script script2of3MultiSigRedeem) {
         return Address.fromP2SHScript(params,ScriptBuilder.createP2SHOutputScript(script2of3MultiSigRedeem));
     }
@@ -323,6 +345,23 @@ public class BitcoinUtils {
         }
         return feePerKb.multiply(sz).divide(1000L);
     }
+
+    /**
+     * Return the raw transaction which has transaction outputs and unsigned transaction inputs
+     * This is the 2-of-3 multisig.
+     * Use at the server side.
+     * IMPORTANT:
+     * 1 KB = 1000 bytes
+     * RECOMMENDED:
+     * feePerKb = Coin.valueOf(1000)        1000 satoshis/KB
+     * @param params                        the network parameter (MainNet, TestNet, ...)
+     * @param unspentTxOutputs              the list of unspent transaction outputs
+     * @param script2of3MultiSigRedeem      the redeem script
+     * @param candidates                    the list of <Address,Coin> pairs which Coin is the amount we want to send to Address
+     * @param feePerKb                      the price of transaction (fee per KB)
+     * @return                              the raw transaction
+     * @throws InsufficientMoneyException   when the input sum is not enough to send, it will throw this exception
+     */
     public static Transaction create2of3MultiSigRawTx(NetworkParameters params, List<TransactionOutput> unspentTxOutputs, Script script2of3MultiSigRedeem, List<Pair<Address,Coin>> candidates, Coin feePerKb) throws InsufficientMoneyException {
         Transaction rawTx = new Transaction(params);
         Coin maxMinNonDustValue = Coin.ZERO;
@@ -353,6 +392,16 @@ public class BitcoinUtils {
                     ,create2of3MultiSigAddress(params,script2of3MultiSigRedeem));
         return rawTx;
     }
+
+    /**
+     * Return the list of transaction hashes.
+     * This is the 2-of-3 multisig.
+     * Use at the server side.
+     * To be able to send the transaction, the client MUST sign them.
+     * @param rawTx                     the raw transaction after created by the create2of3MultiSigRawTx function.
+     * @param script2of3MultiSigRedeem  the redeem script
+     * @return                          the list of transaction hashes
+     */
     public static List<Sha256Hash> create2of3MultiSigRawTxHash(Transaction rawTx, Script script2of3MultiSigRedeem) {
         List<Sha256Hash> sha256Hashes = new ArrayList<>();
         for (int i = 0; i < rawTx.getInputs().size(); i++) {
@@ -360,6 +409,24 @@ public class BitcoinUtils {
         }
         return sha256Hashes;
     }
+
+    /**
+     * Return the list of transaction signatures.
+     * This is the 2-of-3 multisig.
+     * Use at the client side.
+     * After receiving the list of transaction hashes, the client MUST sign them to create the list of transaction signatures.
+     * After signing them, the client MUST send the list of the signatures to the server.
+     * To export private key from ECKey, we can use method:
+     *      ECKey.getPrivateKeyEncoded(NetworkParameters params).toBase58(): String
+     *      with:   NetworkParameters params: the network parameter (MainNet, TestNet, ...)
+     * To import private key, we can use function:
+     *      DumpedPrivateKey.fromBase58(NetworkParameters params, String base58): ECKey
+     *      with:   NetworkParameters params: the network parameter (MainNet, TestNet, ...)
+     *              String base58: the private key in String format
+     * @param rawTxHashes   the list of transaction hashes
+     * @param privKey       the private key
+     * @return              the list of transaction signatures.
+     */
     public static List<TransactionSignature> create2of3MultiSigTxSig(List<Sha256Hash> rawTxHashes, ECKey privKey) {
         List<TransactionSignature> txSigs = new ArrayList<>();
         for (Sha256Hash txHash :
@@ -368,6 +435,22 @@ public class BitcoinUtils {
         }
         return txSigs;
     }
+
+    /**
+     * Complete the transaction.
+     * This is the 2-of-3 multisig.
+     * Use at the server side.
+     * After receiving the list of transaction signatures, the server will add them and complete the transaction.
+     * IMPORTANT:
+     * Complete the transaction, but not send the transaction to the network.
+     * To send the transaction to the network, use the method:
+     *      BitcoinClient.sendRawTransaction(Transaction tx): Sha256Hash
+     * @param rawTx                     the raw transaction
+     * @param script2of3MultiSigRedeem  the redeem script
+     * @param userTxSign                the list of transaction signatures
+     * @param serverKey                 the server private key
+     * @return                          the completed transaction
+     */
     public static Transaction signRaw2of3MultiSigTransaction(Transaction rawTx, Script script2of3MultiSigRedeem, List<TransactionSignature> userTxSign, ECKey serverKey) {
         for (int i = 0; i < rawTx.getInputs().size(); i++) {
             List<TransactionSignature> txSignatures = new ArrayList<>();

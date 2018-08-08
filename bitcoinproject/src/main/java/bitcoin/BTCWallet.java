@@ -22,20 +22,17 @@ public class BTCWallet {
     private String address;
     @Field(value="txOuts")
     private List<UTxOOBj> uTxOs=new ArrayList<>();
-    @Field(value="balance")
-    private Long balance;
+    //@Field(value="balance")
+    //private Long balance;
 
     public BTCWallet(Address address){
         super();
         this.address=address.toBase58();
-        this.balance= Long.parseLong("0");
         //System.out.println("Contructor 1");
-        System.out.println(this.balance);
     }
 
     public BTCWallet(){
         super();
-        this.balance= Long.parseLong("0");
         //System.out.println("Contructor 2");
     }
 
@@ -43,7 +40,6 @@ public class BTCWallet {
         super();
         this.id=id;
         this.address=address;
-        this.balance=balance;
         //System.out.println("Contructor 3");
     }
 
@@ -66,6 +62,9 @@ public class BTCWallet {
         return this.uTxOs;
     }
 
+    /**
+     * @return Return list transaction output, which is available to send
+     */
     public List<TransactionOutput> getuTxOs() {
         List<TransactionOutput> txOuts=new ArrayList<>();
         for (UTxOOBj uTxOOBj:
@@ -76,6 +75,9 @@ public class BTCWallet {
         return txOuts;
     }
 
+    /**
+     * @return Return all transaction output of this BTCWallet, including isspending transaction
+     */
     public List<TransactionOutput> getAlluTxOs() {
         List<TransactionOutput> txOuts=new ArrayList<>();
         for (UTxOOBj uTxOOBj:
@@ -99,17 +101,6 @@ public class BTCWallet {
         this.address = address;
     }
 
-    public void setBalance(Long balance) {
-        this.balance = balance;
-    }
-
-    public void incBalance(Long value){
-        this.balance+=value;
-    }
-
-    public void decBalance(Long value){
-        this.balance-=value;
-    }
 
     public void setUTxOs(List<TransactionOutput> TxOs) {
         for (TransactionOutput TxO :
