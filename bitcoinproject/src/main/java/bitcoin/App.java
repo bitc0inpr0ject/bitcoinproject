@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 public class App {
-    public static List<BTCWallet> btcWallets;
+    public static List<BTCWallet> btcWallets;//List of BTCWallet Object, which contain tracking address
     public static WalletService walletService;
     public static BitcoinUtils bitcoinUtils;
     public static void main(String args[]) {
@@ -36,20 +36,27 @@ public class App {
 
         //btcWallets=walletService.findAll();
 
-
+        //Run new thread to get and handle block notification
         Thread GetNotify = new Thread(new Runnable() {
             public void run()
             {
                 (new ServerUtils()).Generator();
             }});
         GetNotify.start();
+        //----------------------
+
         NetworkParameters params = new TestNet2Params();
+
+        //Generate an address with follow keys-------->
 //        ECKey clientPubKey_1 = ECKey.fromPublicOnly(DumpedPrivateKey.fromBase58(params,"cVJXn1fYezvJRYGphvtvsmE5tyD5WCmKE2d72bJQ7hSYwWK6rPYQ").getKey().getPubKeyPoint());
 //        ECKey clientPubKey_2 = ECKey.fromPublicOnly(DumpedPrivateKey.fromBase58(params,"cUeaPvaHz1SepBcznwS3EYoMAY8tQFcGRaYmXLqQeqH2fop4RA6Y").getKey().getPubKeyPoint());
 //        ECKey serverPrivKey = DumpedPrivateKey.fromBase58(params,"cSmtVqfTnr4xPfMMu5MEpjE65rkvsLR5mytJzGXZUFKCmwjiJKT9").getKey();
 //        BitcoinWallet bitcoinWallet = BitcoinWallet.createBitcoinWallet(params,clientPubKey_1,clientPubKey_2,serverPrivKey);
 //        bitcoinWalletService.create(bitcoinWallet);
+        //<----------------
 
+        // <-- Đoạn này là kiểm tra xem có ví ở địa chỉ 2Mtmik5182xAATbKvp9Jg1dM6KCfEGvgnfS được lưu trong DB hay không
+        // Nếu có thì lấy địa chỉ đó ra để tiến hành gửi tiền
         List<BitcoinWallet> bitcoinWallets=bitcoinWalletService.findAll();
         System.out.println(bitcoinWallets);
         BitcoinWallet bitcoinWallet = null;
@@ -64,12 +71,17 @@ public class App {
 //            walletService.create(btcWallet);
 //            btcWallets.add(btcWallet);
         }
+        // -->
+
+
+        // <--  Đoạn này là dùng ví ở địa chỉ 2Mtmik5182xAATbKvp9Jg1dM6KCfEGvgnfS để tiến hành gửi 0.01 BTC cho
+        // địa chỉ ms5fFtefrWVEPZeg8b3LM9ZMmYcM4NuSkh
         BitcoinClient client = bitcoinUtils.getClientInstance();
 
         if (bitcoinWallet != null) {
             System.out.println(bitcoinWallet.getAddress(params));
-            BTCWallet btcWallet=walletService.find(bitcoinWallet.getAddress(params));
-            btcWallets.add(btcWallet);
+            BTCWallet btcWallet=walletService.find(bitcoinWallet.getAddress(params));// Find wallet on DB which has address bitcoinWallet.getAddress(params)
+            btcWallets.add(btcWallet);//Add it to list tracking address
             List<TransactionOutput> transactionOutputs = btcWallet.getuTxOs();
             try {
                 Transaction tx = bitcoinWallet.createRawTx(
@@ -97,6 +109,7 @@ public class App {
                 e.printStackTrace();
             }
         }
+        // -->
 
 
         context.close();
@@ -133,3 +146,4 @@ public class App {
 
 
 }
+
