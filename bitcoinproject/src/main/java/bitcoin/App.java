@@ -48,11 +48,22 @@ public class App {
         NetworkParameters params = new TestNet2Params();
 
         //Generate an address with follow keys-------->
-//        ECKey clientPubKey_1 = ECKey.fromPublicOnly(DumpedPrivateKey.fromBase58(params,"cVJXn1fYezvJRYGphvtvsmE5tyD5WCmKE2d72bJQ7hSYwWK6rPYQ").getKey().getPubKeyPoint());
-//        ECKey clientPubKey_2 = ECKey.fromPublicOnly(DumpedPrivateKey.fromBase58(params,"cUeaPvaHz1SepBcznwS3EYoMAY8tQFcGRaYmXLqQeqH2fop4RA6Y").getKey().getPubKeyPoint());
-//        ECKey serverPrivKey = DumpedPrivateKey.fromBase58(params,"cSmtVqfTnr4xPfMMu5MEpjE65rkvsLR5mytJzGXZUFKCmwjiJKT9").getKey();
-//        BitcoinWallet bitcoinWallet = BitcoinWallet.createBitcoinWallet(params,clientPubKey_1,clientPubKey_2,serverPrivKey);
-//        bitcoinWalletService.create(bitcoinWallet);
+        // <-- Đoạn này là tạo đối tượng BitcoinWallet để lưu ví của người dùng
+        // 3 đối tượng ECKey lần lượt là 2 public key của ngơời dùng và 1 private key của server
+        if (false) {
+            ECKey clientPubKey_1 = ECKey.fromPublicOnly(DumpedPrivateKey.fromBase58(params,"cVJXn1fYezvJRYGphvtvsmE5tyD5WCmKE2d72bJQ7hSYwWK6rPYQ").getKey().getPubKeyPoint());
+            ECKey clientPubKey_2 = ECKey.fromPublicOnly(DumpedPrivateKey.fromBase58(params,"cUeaPvaHz1SepBcznwS3EYoMAY8tQFcGRaYmXLqQeqH2fop4RA6Y").getKey().getPubKeyPoint());
+            ECKey serverPrivKey = DumpedPrivateKey.fromBase58(params,"cSmtVqfTnr4xPfMMu5MEpjE65rkvsLR5mytJzGXZUFKCmwjiJKT9").getKey();
+
+            // dòng này là tạo đối tượng BitcoinWallet
+            BitcoinWallet bitcoinWallet = BitcoinWallet.createBitcoinWallet(params,clientPubKey_1,clientPubKey_2,serverPrivKey);
+
+            // dòng này thêm BitcoinWallet vào DB, sau này chỉ cần tìm trong DB
+            bitcoinWalletService.create(bitcoinWallet);
+
+
+        }
+
         //<----------------
 
         // <-- Đoạn này là kiểm tra xem có ví ở địa chỉ 2Mtmik5182xAATbKvp9Jg1dM6KCfEGvgnfS được lưu trong DB hay không
@@ -68,7 +79,7 @@ public class App {
             BTCWallet btcWallet = new BTCWallet(wallet.getAddress(params));
             if (wallet.getAddress(params).toString().equals("2Mtmik5182xAATbKvp9Jg1dM6KCfEGvgnfS"))
                 bitcoinWallet = wallet;
-//            walletService.create(btcWallet);
+            walletService.create(btcWallet);
 //            btcWallets.add(btcWallet);
         }
         // -->
@@ -146,4 +157,3 @@ public class App {
 
 
 }
-
