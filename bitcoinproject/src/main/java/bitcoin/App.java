@@ -122,7 +122,6 @@ public class App {
         }
         // -->
 
-
         context.close();
         System.out.println("Done");
     }
@@ -153,7 +152,4 @@ public class App {
             System.out.println("------------------------");
         }
     }
-
-
-
 }
